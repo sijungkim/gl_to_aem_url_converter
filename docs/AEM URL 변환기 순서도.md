@@ -1,3 +1,22 @@
+---
+title: "AEM URL Converter Flowchart (Legacy Monolithic Implementation)"
+description: "Flowchart showing the monolithic decision flow and processing logic for converting GlobalLink translated ZIP files to AEM editor URLs for MSM content review and updates."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "1.0.0"
+license: "MIT"
+branch: "main (legacy production)"
+architecture: "Monolithic"
+tags: ["AEM", "GlobalLink", "Translation", "MSM", "Streamlit", "Production", "Mermaid", "Flowchart"]
+dependencies: ["mermaid"]
+diagram_type: "Flowchart"
+purpose: "Visualize monolithic processing logic and decision flow"
+scope: "Complete processing algorithm from file analysis to URL generation"
+---
+
 ``` mermaid
 graph TD
     Start[Start] --> InputFields[Display Job ID and<br/>Submission Name fields]

@@ -1,4 +1,23 @@
 
+---
+title: "AEM URL Converter Component Diagram (Legacy Monolithic Implementation)"
+description: "Component diagram showing the monolithic architecture with all functionality contained in a single file for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM content review."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "1.0.0"
+license: "MIT"
+branch: "main (legacy production)"
+architecture: "Monolithic"
+tags: ["AEM", "GlobalLink", "Translation", "MSM", "Streamlit", "Production", "Mermaid", "Component Diagram"]
+dependencies: ["mermaid"]
+diagram_type: "Component Diagram"
+purpose: "Visualize monolithic architecture and function relationships"
+scope: "Single-file system architecture"
+---
+
 ``` mermaid
 classDiagram
     direction TB

@@ -1,3 +1,22 @@
+---
+title: "AEM URL Converter Sequence Diagram (Legacy Monolithic Implementation)"
+description: "Sequence diagram showing the monolithic workflow for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM content review across English, target languages, and SPAC target languages."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "1.0.0"
+license: "MIT"
+branch: "main (legacy production)"
+architecture: "Monolithic"
+tags: ["AEM", "GlobalLink", "Translation", "MSM", "Streamlit", "Production", "Mermaid", "Sequence Diagram"]
+dependencies: ["mermaid"]
+diagram_type: "Sequence Diagram"
+purpose: "Visualize monolithic execution flow and function interactions"
+scope: "End-to-end workflow from ZIP upload to HTML report generation"
+---
+
 ``` mermaid
 sequenceDiagram
     autonumber

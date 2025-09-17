@@ -1,3 +1,48 @@
+"""
+---
+title: "AEM URL Converter - Monolithic Application"
+description: "Legacy monolithic Streamlit application for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates across English, target languages, and SPAC target languages."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "1.0.0"
+license: "MIT"
+branch: "main (legacy production)"
+architecture: "Monolithic"
+file_type: "Main Application"
+framework: "Streamlit"
+language: "Python 3.8+"
+dependencies: ["streamlit", "pandas", "zipfile", "io", "os", "datetime", "typing"]
+purpose: "Process GlobalLink translation packages and provide AEM MSM editor URLs"
+workflow: "ZIP upload → Language detection → URL generation → MSM report creation"
+features: ["GlobalLink ZIP processing", "AEM URL generation", "MSM workflow support", "Multi-language support (Korean/Japanese)", "HTML report export", "SPAC integration"]
+tags: ["AEM", "GlobalLink", "Translation", "MSM", "Streamlit", "Production", "Monolithic"]
+constants:
+  - "AEM_HOST: Production AEM author host URL"
+  - "SOURCE_LANG_PATH: English language master path"
+  - "TEMPLATE_FILE: HTML template file name"
+functions:
+  - "load_template(): Load HTML template with fallback"
+  - "generate_aem_url(): Transform file paths to AEM editor URLs"
+  - "process_zip_file(): Extract and process GlobalLink ZIP contents"
+  - "build_hierarchical_df(): Create hierarchical DataFrames for display"
+  - "generate_html_table(): Generate downloadable HTML reports with MSM links"
+ui_components:
+  - "File uploader for GlobalLink ZIP files"
+  - "Optional Job ID and Submission Name inputs"
+  - "Split-view results display (Korean/Japanese)"
+  - "Interactive HTML report generation"
+  - "Download buttons for MSM workflow reports"
+msm_features:
+  - "English language master links (lm-en)"
+  - "Target language content links (lm-ko/ja)"
+  - "SPAC target language links (spac-ko/ja)"
+  - "Hierarchical content structure navigation"
+---
+"""
+
 import streamlit as st
 import zipfile
 import io
