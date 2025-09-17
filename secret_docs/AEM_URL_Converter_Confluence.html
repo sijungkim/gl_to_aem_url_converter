@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AEM URL Converter - Confluence Documentation</title>
+</head>
+<body>
+
+<h1>AEM URL Converter</h1>
+
+<p><strong>Version:</strong> 1.0.0<br>
+<strong>Architect:</strong> Sijung Kim<br>
+<strong>Authors:</strong> Sijung Kim, Claude, Gemini<br>
+<strong>Created:</strong> 2025-09-15<br>
+<strong>Last Modified:</strong> 2025-09-17</p>
+
+<div style="background-color: #e3f2fd; padding: 10px; border-left: 4px solid #2196f3; margin: 20px 0;">
+<strong>Note:</strong> This application is hosted in a private GitHub repository. If you need access to the source code, please contact Sijung Kim for repository permissions.
+</div>
+
+<h2>Overview</h2>
+<p>A Streamlit-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates. This production-ready monolithic implementation processes downloaded GlobalLink translation packages and provides direct AEM editor links for English language master, target language content, and SPAC target language pages.</p>
+
+<h2>Architecture</h2>
+<p>This application uses a <strong>monolithic architecture</strong> with all functionality contained in a single file for maximum simplicity and reliability.</p>
+
+<h3>Project Structure</h3>
+<pre>
+gl_to_aem_url_converter/
+├── aem_url_converter.py         # Main monolithic application
+├── html_template_file.html      # HTML template
+├── docs/                        # Documentation files
+│   ├── AEM URL 변환기 컴포넌트 다이어그램.md
+│   ├── AEM URL 변환기 시퀀스 다이어그램.md
+│   └── AEM URL 변환기 순서도.md
+└── .gitignore                   # Git exclusion rules
+</pre>
+
+<h3>Monolithic Design Benefits</h3>
+<ul>
+<li><strong>Simplicity:</strong> Single file deployment and execution</li>
+<li><strong>Easy Debugging:</strong> All code in one place for troubleshooting</li>
+<li><strong>Quick Deployment:</strong> No complex dependency management</li>
+<li><strong>Production Stability:</strong> Battle-tested monolithic approach</li>
+</ul>
+
+<div style="background-color: #f5f5f5; padding: 10px; border-left: 4px solid #757575; margin: 20px 0;">
+<strong>Alternative Implementation:</strong> For a refactored SOLID-principles implementation, see the <code>solid</code> branch in the repository.
+</div>
+
+<h2>Quick Start</h2>
+
+<h3>Installation Requirements</h3>
+<ul>
+<li>Python 3.8+</li>
+<li>Streamlit</li>
+<li>Pandas</li>
+</ul>
+
+<h3>Setup Instructions</h3>
+<ol>
+<li>Contact Sijung Kim for GitHub repository access</li>
+<li>Clone the repository and switch to main branch</li>
+<li>Install dependencies: <code>pip install streamlit pandas</code></li>
+<li>Run the application: <code>streamlit run aem_url_converter.py</code></li>
+</ol>
+
+<h3>Optional Configuration</h3>
+<p>Set environment variable for custom AEM host:</p>
+<pre>export AEM_HOST="https://your-aem-host.com"</pre>
+<p>Default: <code>https://prod-author.illumina.com</code></p>
+
+<h2>Core Functions</h2>
+
+<h3>Configuration Constants</h3>
+<ul>
+<li><strong>AEM_HOST:</strong> Production AEM author host URL</li>
+<li><strong>SOURCE_LANG_PATH:</strong> English language master path ("language-master#en")</li>
+<li><strong>TEMPLATE_FILE:</strong> HTML template file name</li>
+</ul>
+
+<h3>Main Functions</h3>
+<ul>
+<li><strong>load_template():</strong> Loads HTML template or provides default</li>
+<li><strong>generate_aem_url(file_name, target_lang):</strong> Generates AEM editor URLs</li>
+<li><strong>process_zip_file(uploaded_file):</strong> Processes GlobalLink ZIP archives</li>
+<li><strong>build_hierarchical_df(links):</strong> Creates hierarchical DataFrames</li>
+<li><strong>generate_html_table(...):</strong> Generates downloadable HTML reports</li>
+</ul>
+
+<h3>Streamlit UI Components</h3>
+<ul>
+<li>File upload interface for GlobalLink ZIP files</li>
+<li>Optional Job ID and Submission Name inputs</li>
+<li>Real-time processing with progress indicators</li>
+<li>Split-view results display (Korean/Japanese)</li>
+<li>Interactive HTML report generation and download</li>
+</ul>
+
+<h2>Usage Guide</h2>
+
+<h3>Basic Workflow</h3>
+<ol>
+<li><strong>Launch Application:</strong> Run <code>streamlit run aem_url_converter.py</code></li>
+<li><strong>Upload GlobalLink ZIP:</strong> Upload the downloaded GlobalLink translation ZIP file</li>
+<li><strong>Optional Metadata:</strong> Enter Job ID and Submission Name for tracking</li>
+<li><strong>View MSM Review Links:</strong>
+    <ul>
+    <li><strong>Japanese Section:</strong> AEM editor links for Japanese content review</li>
+    <li><strong>Korean Section:</strong> AEM editor links for Korean content review</li>
+    </ul>
+</li>
+<li><strong>Download MSM Reports:</strong> Export HTML reports with interactive features</li>
+</ol>
+
+<h3>MSM Report Features</h3>
+<ul>
+<li>Interactive checkboxes for content selection</li>
+<li>Quick Links for MSM workflow:
+    <ul>
+    <li><strong>lm-en:</strong> English language master links</li>
+    <li><strong>lm-ko/ja:</strong> Target language content links</li>
+    <li><strong>spac-ko/ja:</strong> SPAC target language links</li>
+    </ul>
+</li>
+<li>Hierarchical table structure for easy navigation</li>
+</ul>
+
+<h2>MSM Integration Features</h2>
+<ul>
+<li><strong>Multi-Site Manager Support:</strong> Direct links to AEM MSM content structure</li>
+<li><strong>Language Master Access:</strong> Quick access to English source content</li>
+<li><strong>Target Language Review:</strong> Direct editing links for translated content</li>
+<li><strong>SPAC Integration:</strong> Specialized links for SPAC target language content</li>
+<li><strong>Content Hierarchy:</strong> Organized view matching AEM content structure</li>
+</ul>
+
+<h2>GlobalLink Processing Algorithm</h2>
+<ol>
+<li><strong>ZIP Analysis:</strong> Extract and analyze GlobalLink translation package</li>
+<li><strong>Language Detection:</strong> Identify ko-KR and ja-JP language files</li>
+<li><strong>Content Filtering:</strong> Process only files starting with "#content"</li>
+<li><strong>URL Generation:</strong> Transform paths to AEM editor URLs</li>
+<li><strong>MSM Link Creation:</strong> Generate language master, target, and SPAC links</li>
+<li><strong>Report Generation:</strong> Create downloadable HTML reports</li>
+</ol>
+
+<h2>Customization Options</h2>
+
+<h3>Custom HTML Templates</h3>
+<p>Create a <code>template.html</code> file in the project root for custom styling. The template supports variables like <code>{title}</code>, <code>{source_info}</code>, <code>{headers}</code>, and <code>{table_rows}</code>.</p>
+
+<h3>Configuration Modifications</h3>
+<p>Edit the configuration section in <code>aem_url_converter.py</code> to modify:</p>
+<ul>
+<li>AEM host URL</li>
+<li>Source language path</li>
+<li>Template file name</li>
+</ul>
+
+<h2>Technical Details</h2>
+
+<h3>Language Processing</h3>
+<ul>
+<li><strong>Supported Languages:</strong> Korean (ko-KR → ko), Japanese (ja-JP → ja)</li>
+<li><strong>Path Detection:</strong> Automatic language detection from file paths</li>
+<li><strong>Content Filtering:</strong> Processes only "#content" prefixed files</li>
+</ul>
+
+<h3>URL Generation Logic</h3>
+<ol>
+<li><strong>Source Path Analysis:</strong> <code>language-master#en</code> → <code>language-master#ko/ja</code></li>
+<li><strong>Path Transformation:</strong> Remove <code>#</code>, convert <code>.xml</code> to <code>.html</code></li>
+<li><strong>Editor URL Construction:</strong> <code>{AEM_HOST}/editor.html/{aem_path}</code></li>
+<li><strong>Quick Links Generation:</strong> Generate English, target, and SPAC links</li>
+</ol>
+
+<h2>Production Features</h2>
+
+<h3>Stability & Performance</h3>
+<ul>
+<li><strong>Production-ready:</strong> Battle-tested monolithic implementation</li>
+<li><strong>Error Handling:</strong> Comprehensive error handling throughout</li>
+<li><strong>Memory Efficient:</strong> Processes ZIP files in memory without extraction</li>
+<li><strong>Fast Processing:</strong> Optimized for large GlobalLink packages</li>
+</ul>
+
+<h3>User Experience</h3>
+<ul>
+<li><strong>Progress Indicators:</strong> Real-time processing feedback</li>
+<li><strong>Split View:</strong> Side-by-side Korean/Japanese results</li>
+<li><strong>Interactive Tables:</strong> Clickable links and hierarchical organization</li>
+<li><strong>Download Reports:</strong> Professional HTML reports with MSM navigation</li>
+</ul>
+
+<h3>Enterprise Ready</h3>
+<ul>
+<li><strong>AEM Integration:</strong> Direct integration with Adobe Experience Manager</li>
+<li><strong>MSM Workflow:</strong> Supports Multi-Site Manager content workflows</li>
+<li><strong>Translation Management:</strong> GlobalLink TMS integration</li>
+<li><strong>SPAC Support:</strong> Specialized SPAC content handling</li>
+</ul>
+
+<h2>Repository Information</h2>
+<ul>
+<li><strong>Current Branch:</strong> main</li>
+<li><strong>Architecture:</strong> Monolithic (single file)</li>
+<li><strong>Stability:</strong> Production-ready</li>
+<li><strong>Alternative:</strong> solid branch (refactored SOLID principles)</li>
+</ul>
+
+<p>This main branch represents the stable, production-ready monolithic implementation optimized for simplicity and reliability in enterprise environments.</p>
+
+<div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+<h3>Getting Access</h3>
+<p>This application is maintained in a private GitHub repository. To request access to the source code or contribute to the project, please reach out to <strong>Sijung Kim</strong> who can provide the necessary repository permissions and onboarding information.</p>
+</div>
+
+</body>
+</html>
