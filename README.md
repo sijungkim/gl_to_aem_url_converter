@@ -1,28 +1,12 @@
----
-title: "AEM URL Converter"
-description: "A Docker-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates across English, target languages, and SPAC target languages. Features multi-ZIP batch processing with intelligent deduplication and source tracking."
-architect: "Sijung Kim"
-authors: ["Sijung Kim", "Claude", "Gemini"]
-reviewed_by: "Sijung Kim"
-created_date: "2025-09-15"
-last_modified: "2025-09-18"
-version: "2.1.0"
-license: "MIT"
-tags: ["AEM", "GlobalLink", "Translation", "SOLID", "Clean Architecture", "Docker", "Multi-ZIP", "Batch Processing"]
----
-
 # 🐳 AEM URL Converter
 
-A Docker-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates. The application analyzes downloaded GlobalLink translation packages and provides direct AEM editor links for English language master, target language content, and SPAC target language pages, streamlining the multilingual content management workflow.
+Docker-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs.
 
-## 🚀 **Multi-ZIP Batch Processing**
-
-✨ **Version 2.1.0** introduces powerful multi-ZIP batch processing capabilities:
-- **Batch Upload**: Select and process multiple ZIP files simultaneously
-- **Smart Deduplication**: Automatically removes duplicate URLs with "latest file wins" strategy
-- **Source Tracking**: Each URL tracks its originating ZIP file for complete transparency
-- **Consolidated Reporting**: Single comprehensive report combining all processed files
-- **Backward Compatible**: Single file processing works exactly as before
+## Features
+- Multi-ZIP batch processing with deduplication
+- AEM editor URL generation for Korean/Japanese content
+- HTML report generation
+- Docker containerized deployment
 
 ## 🏗️ Architecture
 
