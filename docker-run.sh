@@ -22,11 +22,6 @@ fi
 
 cd "$PROJECT_DIR"
 
-# Check git status
-if ! git diff-index --quiet HEAD -- 2>/dev/null; then
-    echo "❌ You have uncommitted changes. Please commit or stash them first."
-    exit 1
-fi
 
 # Switch branch if needed
 CURRENT=$(git branch --show-current 2>/dev/null || echo "unknown")
