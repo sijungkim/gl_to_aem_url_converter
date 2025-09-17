@@ -215,6 +215,11 @@ cython_debug/
 # Custom template files (if you want to keep default template)
 # template.html
 
+# Secret documentation (internal tutorials and guides)
+secret_docs/
+internal_docs/
+private_tutorials/
+
 # Secrets and credentials
 credentials/
 secrets/
