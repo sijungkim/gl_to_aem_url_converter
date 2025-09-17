@@ -1,5 +1,46 @@
 """
-main.py - 애플리케이션 진입점
+---
+title: "Main Application Entry Point"
+description: "Primary entry point for the AEM URL Converter application that processes GlobalLink translated ZIP files. Handles configuration loading, dependency injection setup, and application initialization to generate AEM MSM editor URLs for English language master, target languages, and SPAC content review."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Application Entry Point"
+dependencies: ["streamlit", "pathlib", "os", "sys"]
+key_classes: ["None - functional module"]
+key_functions: ["main", "load_config"]
+design_patterns: ["Dependency Injection", "Factory Pattern"]
+solid_principles: ["DIP - Dependency Inversion Principle"]
+tags: ["entry-point", "configuration", "dependency-injection", "streamlit"]
+---
+
+main.py - Application Entry Point
+
+This module serves as the primary entry point for the AEM URL Converter application.
+It is responsible for:
+- Loading application configuration from environment variables or defaults
+- Setting up the dependency injection container with all required services
+- Initializing and running the Streamlit application
+- Handling top-level application errors and providing user feedback
+
+The module follows the Dependency Inversion Principle by depending on abstractions
+(Config, DIContainer) rather than concrete implementations, making it easy to test
+and modify without affecting the core business logic.
+
+Key Features:
+- Environment-based configuration loading
+- Centralized dependency injection setup
+- Clean error handling with user-friendly messages
+- Python path management for proper module imports
+- Streamlit application lifecycle management
+
+Architecture:
+This module sits at the top of the application hierarchy and orchestrates
+the initialization of all lower-level components through the DIContainer,
+ensuring proper separation of concerns and adherence to SOLID principles.
 """
 import sys
 import os

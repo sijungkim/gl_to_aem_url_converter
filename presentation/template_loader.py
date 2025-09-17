@@ -1,5 +1,49 @@
 """
-presentation/template_loader.py - 템플릿 로딩 서비스
+---
+title: "Template Loading and Management Services"
+description: "Presentation layer services for loading and managing HTML templates. Provides flexible template system with support for custom user templates, default fallbacks, and advanced template directory management following clean architecture principles."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Presentation Layer"
+dependencies: ["typing", "os", "pathlib"]
+key_classes: ["TemplateLoader", "AdvancedTemplateLoader"]
+key_functions: ["load_template", "template_exists", "get_default_template", "load_from_directory"]
+design_patterns: ["Strategy Pattern", "Factory Pattern", "Template Method Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle", "OCP - Open/Closed Principle"]
+features: ["Template Loading", "Fallback Handling", "Directory Management", "Default Templates"]
+tags: ["template-management", "file-loading", "presentation", "configuration"]
+---
+
+presentation/template_loader.py - Template Loading and Management Services
+
+This module provides flexible template loading capabilities for the HTML rendering
+system. It supports both simple file-based templates and advanced directory-based
+template management with fallback mechanisms and default template provision.
+
+Key Responsibilities:
+- Load HTML templates from files or provide sensible defaults
+- Manage template existence checking and validation
+- Support custom user templates with fallback to defaults
+- Provide advanced template directory management capabilities
+- Handle file system errors gracefully with appropriate fallbacks
+
+Service Classes:
+
+1. TemplateLoader:
+   Basic template loading service that handles single template files
+   with fallback to built-in default templates.
+
+2. AdvancedTemplateLoader:
+   Extended template loader that supports directory-based template
+   management with multiple template options and advanced fallback logic.
+
+The module follows the Open/Closed Principle by providing a base
+TemplateLoader that can be extended with additional functionality
+without modifying the existing implementation.
 """
 from typing import Optional
 import os

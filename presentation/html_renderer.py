@@ -1,5 +1,50 @@
 """
-presentation/html_renderer.py - HTML 렌더링 서비스
+---
+title: "HTML Rendering Services"
+description: "Presentation layer services for generating HTML reports with AEM MSM quick access links. Implements template-based rendering for GlobalLink translation review workflow with interactive features including checkboxes, MSM navigation links (language master, target language, SPAC), and hierarchical table structures."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Presentation Layer"
+dependencies: ["typing", "datetime", "core.interfaces", "presentation.template_loader", "services.language"]
+key_classes: ["HTMLTableRenderer", "QuickLinksGenerator"]
+key_functions: ["render", "generate_table_html", "generate_quick_links", "create_checkbox_column"]
+design_patterns: ["Strategy Pattern", "Template Method Pattern", "Builder Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle", "DIP - Dependency Inversion Principle"]
+features: ["HTML Generation", "Interactive Tables", "Quick Links", "Template Rendering", "Checkbox Integration"]
+tags: ["html-rendering", "template-engine", "interactive-ui", "presentation"]
+---
+
+presentation/html_renderer.py - HTML Rendering Services
+
+This module provides comprehensive HTML rendering capabilities for generating
+downloadable reports and interactive content displays. It implements template-based
+rendering with support for custom templates, interactive features, and AEM-specific
+quick access functionality.
+
+Key Responsibilities:
+- Generate HTML reports from AEM link data using customizable templates
+- Create interactive tables with checkboxes for content selection
+- Generate quick access links for AEM navigation (language master, SPAC, etc.)
+- Implement hierarchical table structures with proper formatting
+- Support custom template loading and variable substitution
+- Provide downloadable HTML files with embedded styling
+
+Service Classes:
+
+1. HTMLTableRenderer (implements TemplateRenderer interface):
+   Main rendering service that generates complete HTML reports with
+   tables, styling, and interactive features.
+
+2. QuickLinksGenerator:
+   Specialized service for generating AEM-specific quick access links
+   including language master links, target language links, and SPAC URLs.
+
+The module demonstrates the Strategy pattern through the TemplateRenderer
+interface and Dependency Inversion by depending on template loading abstractions.
 """
 from typing import List, Dict, Optional
 from datetime import datetime

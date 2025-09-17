@@ -1,5 +1,147 @@
 """
-core/interfaces.py - 추상 인터페이스 및 프로토콜 정의
+---
+title: "Abstract Interfaces and Protocols"
+description: "Core interface definitions implementing the Interface Segregation and Dependency Inversion principles. Provides abstract base classes and protocols that define contracts for services without coupling to implementations, enabling extensibility and testability."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Core Domain Layer"
+dependencies: ["abc", "typing", "core.models"]
+key_classes: ["URLGenerator", "TemplateRenderer"]
+key_protocols: ["FileProcessor", "LanguageDetector", "DataFrameBuilder"]
+key_functions: ["generate", "render", "process", "detect", "build"]
+design_patterns: ["Abstract Factory Pattern", "Strategy Pattern", "Protocol Pattern"]
+solid_principles: ["ISP - Interface Segregation Principle", "DIP - Dependency Inversion Principle", "OCP - Open/Closed Principle"]
+features: ["Duck Typing", "Protocol-based Design", "Extensibility", "Type Safety"]
+tags: ["interfaces", "protocols", "abstractions", "core", "contracts"]
+---
+
+core/interfaces.py - Abstract Interfaces and Protocols
+
+This module defines the core abstractions that enable the application to follow
+SOLID principles, particularly the Interface Segregation Principle (ISP) and
+Dependency Inversion Principle (DIP). It provides contracts that implementations
+must follow without dictating how they should be implemented.
+
+Key Responsibilities:
+- Define abstract interfaces for core services
+- Establish protocols for duck-typed services
+- Enable dependency inversion throughout the application
+- Support extensibility and plugin architecture
+- Facilitate testing through mockable interfaces
+
+Architecture:
+The module uses a combination of Abstract Base Classes (ABC) and Protocols to
+define contracts. ABCs are used for core services that require explicit inheritance,
+while Protocols enable duck typing for more flexible implementations.
+
+Interface Design Principles:
+- Interface Segregation: Each interface is focused and contains only related methods
+- Dependency Inversion: High-level modules depend on these abstractions
+- Open/Closed: New implementations can be added without modifying existing code
+- Liskov Substitution: All implementations are interchangeable
+
+Abstract Interfaces:
+
+1. URLGenerator (ABC):
+   Defines the contract for URL generation services. Implementations must provide
+   the ability to generate AEM editor URLs from file names and target languages.
+
+   Methods:
+   - generate(file_name, target_lang) -> Optional[Tuple[str, str]]
+     Generates a URL and path tuple for the given file and language
+
+   Design: Uses ABC to enforce explicit inheritance and ensure all implementations
+   provide the required generate method.
+
+2. TemplateRenderer (ABC):
+   Defines the contract for template rendering services. Implementations can
+   support different template engines or rendering strategies.
+
+   Methods:
+   - render(links, **kwargs) -> str
+     Renders links into formatted output (HTML, etc.)
+
+   Design: Abstract enough to support multiple rendering backends while ensuring
+   consistent interface for client code.
+
+Protocols:
+
+1. FileProcessor (Protocol):
+   Defines the contract for file processing services using duck typing. Any class
+   that implements the process method can be used as a FileProcessor.
+
+   Methods:
+   - process(file_path) -> Optional[AEMLink]
+     Processes a file and returns an AEMLink if successful
+
+   Design: Uses Protocol to enable duck typing and flexible implementations
+   without requiring explicit inheritance.
+
+2. LanguageDetector (Protocol):
+   Defines the contract for language detection services. Enables different
+   language detection strategies without coupling to specific implementations.
+
+   Methods:
+   - detect(path) -> Optional[str]
+     Detects language code from a file path
+
+   Design: Simple, focused interface that can be implemented by various
+   language detection algorithms.
+
+3. DataFrameBuilder (Protocol):
+   Defines the contract for DataFrame construction services. Allows different
+   data presentation strategies while maintaining consistent interface.
+
+   Methods:
+   - build(links) -> DataFrame
+     Builds a pandas DataFrame from a list of links
+
+   Design: Generic enough to support different DataFrame structures while
+   ensuring type safety.
+
+Benefits of Protocol-based Design:
+- Duck Typing: Implementations don't need explicit inheritance
+- Flexibility: Easy to create lightweight implementations
+- Testing: Simple to create mock objects that satisfy protocols
+- Interoperability: Different libraries can implement protocols naturally
+
+Usage Examples:
+# Abstract Base Class implementation
+class AEMURLGenerator(URLGenerator):
+    def generate(self, file_name: str, target_lang: str) -> Optional[Tuple[str, str]]:
+        # Implementation here
+        pass
+
+# Protocol implementation (duck typing)
+class MyFileProcessor:
+    def process(self, file_path: str) -> Optional[AEMLink]:
+        # Implementation here - no inheritance needed
+        pass
+
+# Usage with type hints
+def process_files(processor: FileProcessor, files: List[str]) -> List[AEMLink]:
+    return [processor.process(f) for f in files if processor.process(f)]
+
+Extensibility:
+The interface design enables easy extension of the application:
+- New URL generators can implement URLGenerator
+- Different template engines can implement TemplateRenderer
+- Custom file processors can satisfy the FileProcessor protocol
+- Alternative language detection can implement LanguageDetector
+
+Testing Support:
+All interfaces and protocols are designed to be easily mockable:
+- Simple method signatures reduce mock complexity
+- Optional return types handle edge cases gracefully
+- Protocol-based design enables lightweight test doubles
+
+The interfaces form the foundation for the application's plugin architecture,
+enabling new functionality to be added without modifying existing code,
+demonstrating the Open/Closed Principle in action.
 """
 from abc import ABC, abstractmethod
 from typing import Protocol, Optional, Tuple, List, Dict

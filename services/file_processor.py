@@ -1,5 +1,63 @@
 """
-services/file_processor.py - ZIP 파일 처리 서비스
+---
+title: "ZIP File Processing Services"
+description: "Service layer components for processing GlobalLink translated ZIP archives downloaded from translation management system. Implements batch file processing, filtering, and AEM MSM editor link extraction for English language master, target languages, and SPAC content review workflow with comprehensive error handling."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Service Layer"
+dependencies: ["zipfile", "io", "os", "typing", "core.models", "services.language", "services.url_generator"]
+key_classes: ["ZipFileProcessor", "FileFilter", "BatchProcessor"]
+key_functions: ["process", "extract_language_files", "filter_content_files", "process_batch"]
+design_patterns: ["Strategy Pattern", "Chain of Responsibility", "Observer Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle", "DIP - Dependency Inversion Principle"]
+features: ["ZIP Processing", "File Filtering", "Batch Operations", "Error Handling", "Progress Tracking"]
+tags: ["file-processing", "zip-extraction", "batch-processing", "services"]
+---
+
+services/file_processor.py - ZIP File Processing Services
+
+This module provides comprehensive ZIP file processing capabilities for
+GlobalLink translation archives. It implements the core business logic for
+extracting, filtering, and processing files to generate AEM links with
+robust error handling and progress tracking.
+
+Key Responsibilities:
+- Process GlobalLink ZIP archives and extract relevant files
+- Filter files based on content type and language criteria
+- Generate AEM links from processed files using language detection and URL generation
+- Handle processing errors and provide detailed feedback
+- Track processing progress and statistics
+- Manage batch operations for multiple files
+
+Service Classes:
+
+1. ZipFileProcessor:
+   Main processing service that orchestrates the entire ZIP file processing
+   workflow from extraction to AEM link generation.
+
+2. FileFilter:
+   Specialized service for filtering relevant files from ZIP archives
+   based on content criteria and file patterns.
+
+3. BatchProcessor:
+   Service for handling batch processing operations with progress tracking
+   and error accumulation across multiple files.
+
+Processing Workflow:
+1. Extract ZIP archive to memory buffer
+2. Enumerate all files in archive
+3. Filter files based on content criteria (#content prefix)
+4. Detect language for each relevant file
+5. Generate AEM URLs using URL generation service
+6. Collect results into ProcessingResult with error tracking
+7. Provide comprehensive processing statistics and warnings
+
+The module demonstrates dependency inversion by depending on language
+detection and URL generation abstractions rather than concrete implementations.
 """
 import zipfile
 import io

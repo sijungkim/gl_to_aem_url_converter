@@ -1,5 +1,64 @@
 """
-app.py - Streamlit 애플리케이션 레이어
+---
+title: "Streamlit Application Layer"
+description: "Main Streamlit application interface for processing GlobalLink translated ZIP files and generating AEM MSM editor URLs. Implements the presentation layer handling GlobalLink file uploads, content analysis, and AEM editor link generation for English language master, target languages, and SPAC content review workflow."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Presentation Layer"
+dependencies: ["streamlit", "typing", "core.models", "di_container"]
+key_classes: ["AEMConverterApp"]
+key_functions: ["run", "_process_and_display", "_display_results", "_display_download_section"]
+design_patterns: ["MVC Pattern", "Observer Pattern", "Strategy Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle", "DIP - Dependency Inversion Principle"]
+ui_components: ["file_uploader", "tabs", "dataframe", "download_button", "metrics"]
+tags: ["streamlit", "ui", "presentation", "user-interface", "web-app"]
+---
+
+app.py - Streamlit Application Layer
+
+This module implements the presentation layer of the AEM URL Converter application
+using Streamlit. It provides a clean, user-friendly web interface for uploading
+GlobalLink translation files and viewing/downloading processed results.
+
+Key Responsibilities:
+- User interface rendering and interaction handling
+- File upload processing and validation
+- Results presentation in multiple formats (tables, summaries, tabs)
+- HTML report generation and download functionality
+- Error handling and user feedback display
+- Progress indication during processing
+
+Architecture:
+The AEMConverterApp class follows the Single Responsibility Principle by focusing
+solely on presentation concerns. It depends on the DIContainer for all business
+logic services, implementing the Dependency Inversion Principle. The UI is
+organized into logical sections with clear separation of concerns.
+
+Key Features:
+- Responsive multi-tab interface (Summary, Japanese, Korean)
+- Interactive data tables with hierarchical organization
+- Real-time processing feedback with spinners
+- Downloadable HTML reports with custom templates
+- Comprehensive error handling and validation
+- Configurable settings display
+- Language-specific result organization
+
+UI Components:
+- File uploader for ZIP files
+- Input fields for Job ID and Submission Name
+- Multi-tab result display
+- Interactive data tables
+- Download buttons for HTML reports
+- Status messages and progress indicators
+- Metric cards for summary statistics
+
+The module maintains clean separation between presentation logic and business
+logic, making it easy to test and modify the UI without affecting core
+functionality.
 """
 import streamlit as st
 from typing import List, Dict, Optional

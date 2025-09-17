@@ -1,5 +1,87 @@
 """
-core/config.py - 애플리케이션 설정 관리
+---
+title: "Application Configuration Management"
+description: "Core configuration module implementing type-safe application settings with environment variable support, language mappings, and SPAC path management. Provides centralized configuration management following the Single Responsibility Principle."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Core Domain Layer"
+dependencies: ["dataclasses", "typing"]
+key_classes: ["Config"]
+key_functions: ["__post_init__", "get_supported_languages", "get_spac_path"]
+design_patterns: ["Data Class Pattern", "Configuration Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle"]
+features: ["Type Safety", "Environment Variables", "Default Values", "Language Mapping"]
+tags: ["configuration", "settings", "dataclass", "core", "domain"]
+---
+
+core/config.py - Application Configuration Management
+
+This module provides centralized configuration management for the AEM URL Converter
+application. It implements a type-safe, immutable configuration system that supports
+environment variables, default values, and language-specific settings.
+
+Key Responsibilities:
+- Application-wide configuration management
+- Environment variable integration
+- Language mapping and SPAC path configuration
+- Type-safe configuration properties
+- Default value management
+
+Architecture:
+The Config class is implemented as a dataclass with post-initialization processing
+to ensure all configuration values are properly set. It follows the Single
+Responsibility Principle by focusing solely on configuration management without
+mixing business logic.
+
+Key Features:
+- Type-Safe Configuration: All configuration values are typed for compile-time safety
+- Environment Variable Support: Automatic loading from environment variables
+- Language Mappings: Configurable language code translations (ko-KR -> ko, ja-JP -> ja)
+- SPAC Path Management: Language-specific SPAC URL path configurations
+- Immutable Design: Configuration values are set once during initialization
+- Default Values: Sensible defaults for all configuration options
+
+Configuration Properties:
+- aem_host: AEM server host URL (default: https://prod-author.illumina.com)
+- source_lang: Source language code (default: en)
+- template_file: HTML template file path (default: template.html)
+- language_mapping: Dictionary mapping locale codes to language codes
+- spac_paths: Dictionary mapping language codes to SPAC paths
+
+Language Support:
+The configuration system is designed to be easily extensible for new languages.
+Adding support for a new language requires only updating the language_mapping
+and spac_paths dictionaries in the post_init method.
+
+Usage Examples:
+# Basic usage with defaults
+config = Config()
+print(config.aem_host)  # https://prod-author.illumina.com
+
+# Custom configuration
+config = Config(
+    aem_host="https://staging.example.com",
+    source_lang="en",
+    template_file="custom_template.html"
+)
+
+# Language utilities
+supported_langs = config.get_supported_languages()  # ['ko', 'ja']
+spac_path = config.get_spac_path('ko')  # '/spac/ko_KR/'
+
+Environment Variable Integration:
+The configuration can be overridden using environment variables:
+- AEM_HOST: Override the AEM host URL
+- SOURCE_LANG: Override the source language
+- TEMPLATE_FILE: Override the template file path
+
+This design ensures that the application can be easily configured for different
+environments (development, staging, production) without code changes, following
+the twelve-factor app methodology.
 """
 from dataclasses import dataclass
 from typing import Dict

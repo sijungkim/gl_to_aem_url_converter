@@ -1,5 +1,93 @@
 """
-di_container.py - 의존성 주입 컨테이너
+---
+title: "Dependency Injection Container"
+description: "Central dependency injection container implementing the Dependency Inversion Principle. Manages all service instances using singleton pattern with lazy loading for optimal performance and clean architecture compliance."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Infrastructure Layer"
+dependencies: ["core.config", "services.*", "presentation.*"]
+key_classes: ["DIContainer", "TestDIContainer"]
+key_functions: ["Property methods for service access", "reset", "inject_mock"]
+design_patterns: ["Dependency Injection", "Singleton Pattern", "Factory Method Pattern", "Lazy Loading"]
+solid_principles: ["DIP - Dependency Inversion Principle", "SRP - Single Responsibility Principle", "OCP - Open/Closed Principle"]
+features: ["Lazy Loading", "Singleton Management", "Mock Injection", "Service Lifecycle"]
+tags: ["dependency-injection", "container", "singleton", "infrastructure", "testing"]
+---
+
+di_container.py - Dependency Injection Container
+
+This module implements a comprehensive dependency injection container that serves
+as the central hub for managing all application dependencies. It follows the
+Dependency Inversion Principle by ensuring that high-level modules don't depend
+on low-level modules, but both depend on abstractions.
+
+Key Responsibilities:
+- Central management of all service instances
+- Lazy loading of services for optimal performance
+- Singleton pattern implementation for shared services
+- Dependency resolution and injection
+- Service lifecycle management
+- Testing support with mock injection capabilities
+
+Architecture:
+The DIContainer uses the Singleton pattern combined with lazy loading to ensure
+that each service is instantiated only once and only when needed. This approach
+provides several benefits:
+- Reduced memory footprint
+- Faster application startup
+- Easier testing and mocking
+- Clear dependency management
+
+Key Features:
+- Lazy Loading: Services are created only when first accessed
+- Singleton Pattern: Each service instance is shared across the application
+- Property-based Access: Clean, readable service access through properties
+- Factory Methods: Support for creating specialized service instances
+- Mock Injection: TestDIContainer supports injecting mock objects for testing
+- Service Reset: Ability to reset all services for testing scenarios
+
+Services Managed:
+Core Services:
+- LanguageDetectorService: Language detection from file paths
+- LanguagePathManager: Language-specific path management
+- AEMURLGenerator: AEM editor URL generation
+- URLValidator: URL validation and verification
+
+File Processing Services:
+- ZipFileProcessor: Main ZIP file processing logic
+- FileFilter: File filtering and validation
+- BatchProcessor: Batch processing operations
+
+Presentation Services:
+- HierarchicalDataFrameBuilder: DataFrame construction for UI
+- SummaryDataFrameBuilder: Summary information tables
+- HTMLTableRenderer: HTML report generation
+- QuickLinksGenerator: Quick access link generation
+- TemplateLoader: HTML template management
+
+Testing Support:
+The TestDIContainer class extends the main container with testing-specific
+features, including mock object injection and isolated test environments.
+This enables comprehensive unit and integration testing while maintaining
+the same dependency injection patterns used in production.
+
+Usage Examples:
+# Production usage
+container = DIContainer(config)
+processor = container.zip_processor
+
+# Testing usage
+test_container = TestDIContainer()
+test_container.inject_mock('url_generator', mock_generator)
+processor = test_container.zip_processor
+
+The container follows SOLID principles by maintaining single responsibility
+(dependency management), being open for extension (new services can be added),
+and implementing dependency inversion throughout the application architecture.
 """
 from core.config import Config
 from services.language import LanguageDetectorService, LanguagePathManager

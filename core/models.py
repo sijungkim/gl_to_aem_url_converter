@@ -1,5 +1,134 @@
 """
-core/models.py - 도메인 모델 정의
+---
+title: "Domain Models and Business Entities"
+description: "Core domain models representing the business entities of the AEM URL Converter. Implements immutable data structures for AEM links, link collections, and processing results with rich behavior and validation following Domain-Driven Design principles."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Core Domain Layer"
+dependencies: ["dataclasses", "typing"]
+key_classes: ["AEMLink", "LinkCollection", "ProcessingResult"]
+key_functions: ["get_path_parts", "get_page_name", "to_dict", "get_total_count", "add_warning", "is_successful"]
+design_patterns: ["Data Class Pattern", "Value Object Pattern", "Aggregate Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle", "ISP - Interface Segregation Principle"]
+features: ["Immutable Design", "Rich Behavior", "Type Safety", "Validation", "Business Logic"]
+tags: ["domain-models", "business-entities", "dataclass", "core", "value-objects"]
+---
+
+core/models.py - Domain Models and Business Entities
+
+This module defines the core domain models that represent the fundamental business
+entities of the AEM URL Converter application. These models encapsulate both data
+and behavior, following Domain-Driven Design principles and maintaining rich domain
+logic while remaining independent of external concerns.
+
+Key Responsibilities:
+- Define business entities and value objects
+- Encapsulate domain-specific business logic
+- Provide type-safe data structures
+- Implement validation and business rules
+- Maintain data integrity and consistency
+
+Architecture:
+The models are implemented as immutable dataclasses that combine data with behavior.
+Each model has a single responsibility and provides methods that implement business
+logic related to that entity. The models form the foundation of the domain layer
+and are used throughout the application.
+
+Domain Models:
+
+1. AEMLink (Value Object):
+   Represents a single AEM editor link with associated metadata. Contains utility
+   methods for path manipulation and data conversion.
+
+   Properties:
+   - url: The complete AEM editor URL
+   - path: The content path within AEM
+   - language: The target language code (ko, ja, etc.)
+
+   Behavior:
+   - Path parsing and hierarchy extraction
+   - Page name extraction from paths
+   - Legacy format conversion for compatibility
+
+2. LinkCollection (Aggregate):
+   Manages collections of AEM links organized by language. Provides aggregate
+   operations and maintains consistency across language-specific collections.
+
+   Properties:
+   - korean: List of Korean language AEM links
+   - japanese: List of Japanese language AEM links
+
+   Behavior:
+   - Total count calculations across all languages
+   - Language-specific link retrieval
+   - Collection validation and consistency checks
+
+3. ProcessingResult (Aggregate Root):
+   Represents the outcome of a file processing operation. Encapsulates the
+   processed links along with metadata about the processing operation,
+   including error handling and warning management.
+
+   Properties:
+   - links: LinkCollection containing all processed links
+   - processed_count: Number of files successfully processed
+   - error_count: Number of errors encountered
+   - warnings: List of warning messages
+
+   Behavior:
+   - Success/failure determination logic
+   - Warning accumulation and management
+   - Processing statistics calculations
+
+Key Features:
+- Immutable Design: All models are immutable, preventing accidental modifications
+- Type Safety: Full type annotations ensure compile-time safety
+- Rich Behavior: Models contain business logic, not just data
+- Validation: Built-in validation ensures data integrity
+- Composability: Models can be easily composed and combined
+- Testability: Pure functions make testing straightforward
+
+Business Logic:
+The models implement domain-specific business logic:
+- Path parsing follows AEM content structure conventions
+- Link validation ensures proper URL formation
+- Collection aggregation maintains language separation
+- Processing results track success/failure states
+
+Usage Examples:
+# Creating an AEM link
+link = AEMLink(
+    url="https://author.example.com/editor.html/content/en/page.html",
+    path="/content/en/page.html",
+    language="en"
+)
+
+# Path operations
+parts = link.get_path_parts()  # ['en', 'page']
+page_name = link.get_page_name()  # 'page'
+
+# Creating collections
+collection = LinkCollection(korean=[ko_link1, ko_link2], japanese=[ja_link1])
+total = collection.get_total_count()  # 3
+
+# Processing results
+result = ProcessingResult(links=collection, processed_count=5)
+result.add_warning("Some files were skipped")
+success = result.is_successful()  # True if no errors and links exist
+
+Design Principles:
+- Single Responsibility: Each model has one clear purpose
+- Immutability: Models cannot be modified after creation
+- Encapsulation: Internal state is protected and accessed through methods
+- Cohesion: Related data and behavior are grouped together
+- Loose Coupling: Models don't depend on external services or infrastructure
+
+The models serve as the foundation for the entire application, providing a clear
+and consistent representation of the business domain that all other layers can
+depend upon without coupling to external concerns.
 """
 from dataclasses import dataclass
 from typing import List, Dict

@@ -1,5 +1,70 @@
 """
-services/url_generator.py - URL 생성 서비스
+---
+title: "AEM URL Generation and Validation Services"
+description: "Service layer components for generating AEM MSM editor URLs from GlobalLink translated content. Implements URLGenerator interface to transform GlobalLink file paths into proper AEM editor URLs for language master (English), target language content, and SPAC target language review workflow."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Service Layer"
+dependencies: ["typing", "core.interfaces", "core.config"]
+key_classes: ["AEMURLGenerator", "URLValidator"]
+key_functions: ["generate", "build_editor_url", "create_aem_path", "validate"]
+design_patterns: ["Strategy Pattern", "Template Method Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle", "OCP - Open/Closed Principle", "LSP - Liskov Substitution Principle"]
+features: ["URL Generation", "Path Transformation", "Validation", "AEM Integration"]
+tags: ["url-generation", "aem-integration", "validation", "services"]
+---
+
+services/url_generator.py - AEM URL Generation and Validation Services
+
+This module implements the core business logic for generating AEM editor URLs
+from GlobalLink translation files. It provides services for transforming file
+paths and names into properly formatted AEM editor URLs that can be used to
+directly access content in the AEM authoring environment.
+
+Key Responsibilities:
+- Generate AEM editor URLs from file names and target languages
+- Transform file paths according to AEM content structure conventions
+- Validate generated URLs for correctness and accessibility
+- Handle language-specific path transformations
+- Implement URL generation strategy pattern
+
+Service Classes:
+
+1. AEMURLGenerator (implements URLGenerator interface):
+   Core service for generating AEM editor URLs with language-specific
+   transformations and proper path handling.
+
+   Key Features:
+   - File name to AEM path transformation (.xml to .html conversion)
+   - Language-specific path generation using configuration
+   - AEM editor URL construction with proper formatting
+   - Error handling for invalid file names and unsupported formats
+
+2. URLValidator:
+   Validation service for ensuring generated URLs meet AEM requirements
+   and follow proper formatting conventions.
+
+   Key Features:
+   - URL format validation
+   - Path structure verification
+   - AEM-specific URL pattern checking
+   - Accessibility validation
+
+URL Generation Algorithm:
+1. Extract file name from GlobalLink path
+2. Validate file name format (must start with #content)
+3. Transform language path using configuration mappings
+4. Convert .xml extension to .html for web access
+5. Construct full AEM editor URL with host and editor path
+6. Validate generated URL format and structure
+
+The module follows SOLID principles by implementing the URLGenerator
+interface (LSP), focusing on single responsibility (SRP), and being
+open for extension through the strategy pattern (OCP).
 """
 from typing import Optional, Tuple
 from core.interfaces import URLGenerator

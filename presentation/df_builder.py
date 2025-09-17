@@ -1,5 +1,49 @@
 """
-presentation/df_builder.py - DataFrame 생성 서비스
+---
+title: "DataFrame Construction Services"
+description: "Presentation layer services for building hierarchical and summary DataFrames from AEM link data. Implements data transformation logic for creating user-friendly tabular representations with markdown formatting and multi-level organization."
+architect: "Sijung Kim"
+authors: ["Sijung Kim", "Claude", "Gemini"]
+reviewed_by: "Sijung Kim"
+created_date: "2025-09-15"
+last_modified: "2025-09-17"
+version: "2.0.0"
+module_type: "Presentation Layer"
+dependencies: ["pandas", "typing", "core.models"]
+key_classes: ["HierarchicalDataFrameBuilder", "SummaryDataFrameBuilder"]
+key_functions: ["build", "create_hierarchical_structure", "format_markdown_links", "build_summary"]
+design_patterns: ["Builder Pattern", "Template Method Pattern"]
+solid_principles: ["SRP - Single Responsibility Principle", "OCP - Open/Closed Principle"]
+features: ["Hierarchical Organization", "Markdown Formatting", "Summary Statistics", "Data Transformation"]
+tags: ["dataframe", "presentation", "data-transformation", "ui-components"]
+---
+
+presentation/df_builder.py - DataFrame Construction Services
+
+This module provides presentation layer services for transforming AEM link data
+into user-friendly DataFrame structures for display in the Streamlit interface.
+It implements various data organization strategies including hierarchical views
+and summary tables with proper formatting and markdown integration.
+
+Key Responsibilities:
+- Transform AEM link collections into hierarchical DataFrame structures
+- Create summary tables with statistics and overview information
+- Format data with markdown links for interactive display
+- Organize content by path hierarchy and language groupings
+- Provide clean, readable data presentation for end users
+
+Service Classes:
+
+1. HierarchicalDataFrameBuilder:
+   Builds multi-level DataFrames that organize content by path hierarchy,
+   making it easy for users to navigate through content structures.
+
+2. SummaryDataFrameBuilder:
+   Creates overview tables with statistics, counts, and high-level
+   information about processed content.
+
+The services follow the Single Responsibility Principle by focusing
+solely on data presentation concerns without mixing business logic.
 """
 import pandas as pd
 from typing import List, Dict, Optional
