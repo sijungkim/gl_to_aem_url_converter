@@ -54,7 +54,7 @@ from typing import Tuple, List, Dict, Optional
 # --- 설정 ---
 AEM_HOST = "https://prod-author.illumina.com"
 SOURCE_LANG_PATH = "language-master#en"
-TEMPLATE_FILE = "template.html"
+TEMPLATE_FILE = "html_template_file.html"
 
 # --- 함수들 ---
 
