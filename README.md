@@ -11,8 +11,7 @@ Docker-based tool for processing GlobalLink translated ZIP files and generating 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker Desktop
-- WSL2 (Windows users)
+- Docker (native Docker in WSL/Linux)
 
 ### Installation
 ```bash
