@@ -1,6 +1,6 @@
 ---
 title: "AEM URL Converter"
-description: "A Streamlit-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates across English, target languages, and SPAC target languages. Features multi-ZIP batch processing with intelligent deduplication and source tracking."
+description: "A Docker-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates across English, target languages, and SPAC target languages. Features multi-ZIP batch processing with intelligent deduplication and source tracking."
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
@@ -8,14 +8,14 @@ created_date: "2025-09-15"
 last_modified: "2025-09-18"
 version: "2.1.0"
 license: "MIT"
-tags: ["AEM", "GlobalLink", "Translation", "SOLID", "Clean Architecture", "Streamlit", "Multi-ZIP", "Batch Processing"]
+tags: ["AEM", "GlobalLink", "Translation", "SOLID", "Clean Architecture", "Docker", "Multi-ZIP", "Batch Processing"]
 ---
 
-# AEM URL Converter
+# 🐳 AEM URL Converter
 
-A Streamlit-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates. The application analyzes downloaded GlobalLink translation packages and provides direct AEM editor links for English language master, target language content, and SPAC target language pages, streamlining the multilingual content management workflow.
+A Docker-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates. The application analyzes downloaded GlobalLink translation packages and provides direct AEM editor links for English language master, target language content, and SPAC target language pages, streamlining the multilingual content management workflow.
 
-## 🚀 **NEW: Multi-ZIP Batch Processing**
+## 🚀 **Multi-ZIP Batch Processing**
 
 ✨ **Version 2.1.0** introduces powerful multi-ZIP batch processing capabilities:
 - **Batch Upload**: Select and process multiple ZIP files simultaneously
@@ -43,10 +43,9 @@ gl_to_aem_url_converter/
 │   ├── html_renderer.py    # HTML report generation
 │   └── template_loader.py  # Template management
 ├── docs/                   # Project documentation
-│   ├── AEM URL Converter - 프로젝트 구조.md
-│   ├── AEM URL 변환기 컴포넌트 다이어그램.md
-│   ├── AEM URL 변환기 시퀀스 다이어그램.md
-│   └── AEM URL 변환기 순서도.md
+├── Dockerfile              # Docker container configuration
+├── docker-compose.yml     # Docker Compose setup
+├── docker-run.sh          # Smart Docker runner script
 ├── di_container.py         # Dependency injection container
 ├── app.py                  # Streamlit application layer
 ├── main.py                 # Application entry point
@@ -81,164 +80,83 @@ gl_to_aem_url_converter/
 
 ## 🚀 Quick Start
 
-### Installation
+### Prerequisites
+
+- **Docker**: Install Docker Desktop for your platform
+- **WSL2** (Windows users): Ensure WSL2 is enabled
+
+### Installation & Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/aem-url-converter.git
-cd aem-url-converter
+git clone <repository-url>
+cd gl_to_aem_url_converter
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# One-time setup: Install global Docker command
+./install-docker-global.sh
 
-# Install dependencies
-pip install -r requirements.txt
+# Restart terminal or reload shell
+source ~/.bashrc
 ```
 
 ### Running the Application
 
+#### **🎯 Recommended Method (Global Command):**
 ```bash
-# Run with Streamlit
-streamlit run main.py
-
-# Or run directly
-python -m streamlit run main.py
+# From anywhere in your system:
+cd /any/directory
+aem-docker                    # Run on solid branch (latest features)
+aem-docker main              # Run on main branch (stable)
+aem-docker feature/my-branch # Run on any branch
 ```
+
+#### **🔧 Alternative Methods:**
+```bash
+# From project directory:
+./docker-run.sh              # Run on solid branch
+./docker-run.sh main         # Run on main branch
+
+# Using Docker Compose:
+docker-compose up --build
+
+# Manual Docker run:
+docker run -p 8501:8501 gl_to_aem_url:latest
+```
+
+#### **🌐 Accessing the Application:**
+
+The application will be available at:
+- **Windows Browser**: `http://localhost:8501` ⭐ (Most common)
+- **WSL Browser**: `http://127.0.0.1:8501`
+- **Alternative**: `http://[WSL-IP]:8501` (shown in output)
+
+> **💡 Tip**: If you get "ERR_CONNECTION_REFUSED", try the different URLs above. See [DOCKER_TROUBLESHOOTING.md](DOCKER_TROUBLESHOOTING.md) for solutions.
 
 ### Environment Variables (Optional)
 
 ```bash
+# Customize AEM host
 export AEM_HOST="https://your-aem-host.com"
 export SOURCE_LANG="en"
 export TEMPLATE_FILE="custom_template.html"
+
+# Then run normally
+aem-docker
 ```
-
-## 📦 Project Structure
-
-### Core Package (`core/`) - Domain Layer
-- **`config.py`**: Application configuration management
-  - `Config` dataclass with environment variable support
-  - Language mappings and SPAC path configurations
-  - Type-safe configuration properties
-
-- **`models.py`**: Domain models and business entities
-  - `AEMLink`: Represents an AEM editor link with path utilities
-  - `LinkCollection`: Language-specific link collections
-  - `ProcessingResult`: Encapsulates processing outcomes with error handling
-
-- **`interfaces.py`**: Abstract interfaces and protocols
-  - `URLGenerator`: Abstract base for URL generation strategies
-  - `FileProcessor`: Protocol for file processing implementations
-  - `TemplateRenderer`: Interface for different rendering engines
-  - `LanguageDetector`: Protocol for language detection services
-
-### Services Package (`services/`) - Business Logic Layer
-- **`language.py`**: Language detection and path management
-  - `LanguageDetectorService`: Detects languages from file paths
-  - `LanguagePathManager`: Manages language-specific path configurations
-
-- **`url_generator.py`**: AEM URL generation and validation
-  - `AEMURLGenerator`: Generates AEM editor URLs following URL conventions
-  - `URLValidator`: Validates generated URLs for correctness
-
-- **`file_processor.py`**: ZIP file processing services
-  - `ZipFileProcessor`: Main ZIP file processing logic
-  - `FileFilter`: Filters relevant files from ZIP archives
-  - `BatchProcessor`: Handles batch processing operations
-
-### Presentation Package (`presentation/`) - Presentation Layer
-- **`df_builder.py`**: DataFrame construction utilities
-  - `HierarchicalDataFrameBuilder`: Creates hierarchical table structures
-  - `SummaryDataFrameBuilder`: Builds summary information tables
-
-- **`html_renderer.py`**: HTML report generation
-  - `HTMLTableRenderer`: Renders HTML tables with advanced features
-  - `QuickLinksGenerator`: Generates quick access links (lm-en, lm-ko/ja, spac)
-
-- **`template_loader.py`**: Template management system
-  - `TemplateLoader`: Basic template loading functionality
-  - `AdvancedTemplateLoader`: Advanced template management with directory support
-
-### Documentation (`docs/`)
-- **Project Structure**: Detailed architecture documentation
-- **Component Diagram**: Mermaid class diagrams showing relationships
-- **Sequence Diagram**: Processing flow visualization
-- **Flowchart**: Step-by-step process documentation
-
-### Application Layer
-- **`di_container.py`**: Dependency injection container
-  - `DIContainer`: Main dependency injection container with singleton pattern
-  - `TestDIContainer`: Testing-specific container with mock injection support
-
-- **`app.py`**: Streamlit application interface
-  - `AEMConverterApp`: Main application class handling UI interactions
-  - Clean separation between business logic and presentation
-
-- **`main.py`**: Application entry point
-  - Configuration loading from environment variables
-  - Dependency injection setup
-  - Application initialization and execution
-
-## 🧪 Testing
-
-The refactored architecture supports comprehensive testing:
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=.
-
-# Run specific test modules
-pytest tests/test_language.py
-pytest tests/test_url_generator.py
-pytest tests/test_file_processor.py
-
-# Test with different environments
-AEM_HOST=https://test.example.com pytest
-```
-
-### Testing Architecture
-
-```python
-# Example: Testing with dependency injection
-from di_container import TestDIContainer
-from unittest.mock import Mock
-
-def test_zip_processing():
-    # Create test container
-    container = TestDIContainer()
-
-    # Inject mock dependencies
-    mock_url_generator = Mock()
-    container.inject_mock('url_generator', mock_url_generator)
-
-    # Test with injected mocks
-    processor = container.zip_processor
-    # ... test implementation
-```
-
-### Testable Components
-- **Unit Tests**: Each service can be tested independently
-- **Integration Tests**: Test service interactions through DI container
-- **Mock Injection**: `TestDIContainer` supports easy mock object injection
-- **Configuration Testing**: Different configurations can be tested easily
 
 ## 📚 Usage
 
 ### Basic Usage
 
 #### Single File Processing (Original Workflow)
-1. **Launch Application**: Run `streamlit run main.py` or `python main.py`
+1. **Launch Application**: Run `aem-docker`
 2. **Upload GlobalLink ZIP**: Upload a single downloaded GlobalLink translation ZIP file
 3. **Optional Metadata**: Enter Job ID and Submission Name for tracking
 4. **View MSM Review Links**: Browse results in organized tabs
 5. **Download Report**: Export HTML report for the single file
 
 #### 🆕 Multi-ZIP Batch Processing (New Feature)
-1. **Launch Application**: Run `streamlit run main.py` or `python main.py`
+1. **Launch Application**: Run `aem-docker`
 2. **Upload Multiple ZIPs**:
    - Use Ctrl+Click (Windows/Linux) or Cmd+Click (Mac) to select multiple ZIP files
    - Upload all selected files at once
@@ -280,20 +198,6 @@ Export HTML reports with:
 - **Content Hierarchy**: Organized view matching AEM content structure
 - **Translation Tracking**: Job ID and submission tracking for workflow management
 
-### GlobalLink to AEM Processing Flow
-
-#### Single File Flow
-1. **Download ZIP from GlobalLink** → **Upload to Application** → **Content Analysis**
-2. **Language Detection** → **MSM Structure Mapping** → **AEM URL Generation**
-3. **Review Link Generation** → **Report Creation** → **MSM Workflow Support**
-
-#### 🆕 Multi-ZIP Batch Flow
-1. **Download Multiple ZIPs from GlobalLink** → **Batch Upload to Application**
-2. **Sequential Processing** → **Content Analysis per File** → **Source Tracking**
-3. **Language Detection** → **MSM Structure Mapping** → **AEM URL Generation**
-4. **Smart Deduplication** → **Conflict Resolution** → **Source Attribution**
-5. **Consolidated Report Generation** → **Comprehensive MSM Workflow Support**
-
 ## 📦 Multi-ZIP Feature Details
 
 ### Smart Deduplication
@@ -320,29 +224,27 @@ Export HTML reports with:
 - **Progress Feedback**: Real-time updates during batch processing
 - **Backward Compatible**: Zero impact on existing single-file workflows
 
+## 🐳 Docker Benefits
+
+### **🌍 True Portability**
+- ✅ **Run from anywhere**: Works from any directory in WSL/Linux
+- ✅ **No local setup**: No Python, virtual environments, or dependencies needed
+- ✅ **Consistent environment**: Same behavior across all machines
+- ✅ **Clean isolation**: No conflicts with other Python projects
+
+### **🚀 Performance & Reliability**
+- ✅ **Fast startup**: Optimized Docker image with minimal dependencies
+- ✅ **Layer caching**: Subsequent builds are extremely fast
+- ✅ **Health checks**: Built-in container monitoring
+- ✅ **Automatic cleanup**: Easy to reset and restart
+
+### **🔧 Development Experience**
+- ✅ **Branch management**: Automatic git branch switching
+- ✅ **Volume mounting**: Live development with file changes
+- ✅ **Multiple environments**: Easy testing across different branches
+- ✅ **Production ready**: Same container can deploy anywhere
+
 ## 🔧 Customization
-
-### Custom Templates
-
-Create a `template.html` file in the project root:
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{title}</title>
-    <!-- Your custom styles -->
-</head>
-<body>
-    <h1>{title}</h1>
-    <div class="source-info">{source_info}</div>
-    <table>
-        <thead><tr>{headers}</tr></thead>
-        <tbody>{table_rows}</tbody>
-    </table>
-</body>
-</html>
-```
 
 ### Adding New Languages
 
@@ -372,15 +274,66 @@ self.spac_paths = {
 
 4. **UI updates are handled automatically** - The application will create new tabs and sections for the new languages
 
-### Benefits of the Enhanced Architecture
-- **Type Safety**: Strong typing prevents runtime errors
-- **Dependency Injection**: Easy testing and mock object injection
-- **Separation of Concerns**: Clear boundaries between layers
-- **Extensibility**: Easy to add new features without modifying existing code
-- **Maintainability**: Changes in one layer don't affect others
-- **Batch Processing**: Efficient multi-file processing with smart deduplication
-- **Source Tracking**: Complete audit trail of processed content
-- **Backward Compatibility**: Seamless support for both single and multi-file workflows
+## 🐛 Troubleshooting
+
+### Connection Issues
+If you encounter "ERR_CONNECTION_REFUSED":
+
+1. **Try different URLs**:
+   - `http://localhost:8501` (Windows browser)
+   - `http://127.0.0.1:8501` (WSL browser)
+   - `http://[WSL-IP]:8501` (alternative)
+
+2. **Check container status**:
+   ```bash
+   docker ps  # Should show container as "Up" and "(healthy)"
+   ```
+
+3. **Test connection**:
+   ```bash
+   curl http://localhost:8501  # Should return HTML
+   ```
+
+4. **Use alternative port**:
+   ```bash
+   aem-docker --port 8502
+   ```
+
+See [DOCKER_TROUBLESHOOTING.md](DOCKER_TROUBLESHOOTING.md) for comprehensive troubleshooting guide.
+
+### Docker Issues
+```bash
+# Rebuild image if needed
+aem-docker --rebuild
+
+# Check Docker status
+docker info
+
+# View container logs
+docker logs gl-to-aem-url
+```
+
+## 🔍 Architecture Benefits
+
+### 🚀 Performance
+- **Docker Optimization**: Minimal image size with only essential dependencies
+- **Layer Caching**: Fast subsequent builds and deployments
+- **Memory Efficiency**: Optimized file processing with minimal memory usage
+
+### 🛡️ Reliability
+- **Container Isolation**: No host system conflicts or dependencies
+- **Health Monitoring**: Built-in container health checks
+- **Error Handling**: Structured error reporting with `ProcessingResult`
+
+### 🔧 Maintainability
+- **Clean Architecture**: Clear separation of concerns across layers
+- **SOLID Principles**: Makes code easy to understand and modify
+- **Dependency Injection**: Facilitates testing and reduces coupling
+
+### 📈 Extensibility
+- **Plugin Architecture**: Easy to add new URL generators or renderers
+- **Language Support**: Simple configuration-based language addition
+- **Template System**: Flexible HTML template customization
 
 ## 🤝 Contributing
 
@@ -394,34 +347,13 @@ self.spac_paths = {
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🔍 Architecture Benefits
-
-### 🚀 Performance
-- **Lazy Loading**: Services are instantiated only when needed
-- **Singleton Pattern**: Prevents duplicate service creation
-- **Efficient Processing**: Optimized file processing with minimal memory usage
-
-### 🛡️ Reliability
-- **Type Safety**: Comprehensive type hints prevent runtime errors
-- **Error Handling**: Structured error reporting with `ProcessingResult`
-- **Validation**: URL and file validation at multiple layers
-
-### 🔧 Maintainability
-- **Clean Architecture**: Clear separation of concerns across layers
-- **SOLID Principles**: Makes code easy to understand and modify
-- **Dependency Injection**: Facilitates testing and reduces coupling
-
-### 📈 Extensibility
-- **Plugin Architecture**: Easy to add new URL generators or renderers
-- **Language Support**: Simple configuration-based language addition
-- **Template System**: Flexible HTML template customization
-
 ## 👥 Authors
 
 - Sijung Kim - Initial work and SOLID refactoring
 
 ## 🙏 Acknowledgments
 
+- **Docker**: Modern containerization platform
 - **Streamlit**: Modern web framework for Python applications
 - **pandas**: Powerful data manipulation and analysis library
 - **GlobalLink**: Translation management system integration

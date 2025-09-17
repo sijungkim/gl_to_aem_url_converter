@@ -1,0 +1,121 @@
+# AEM URL Converter - Docker Ignore File
+# Exclude unnecessary files from Docker build context for faster builds
+
+# Git and version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation and markdown files
+*.md
+README*
+CHANGELOG*
+LICENSE*
+docs/
+secret_docs/
+
+# Development and IDE files
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+*~
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Development tools
+.flake8
+.pylintrc
+pyproject.toml
+setup.py
+setup.cfg
+tox.ini
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Docker related (avoid recursive Docker builds)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Shell scripts (not needed in container)
+*.sh
+*.bat
+Makefile
+
+# Local configuration and secrets
+.env
+.env.local
+.env.*.local
+config.local.*
+secrets/
+
+# Runtime files
+*.log
+*.pid
+*.sock
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Other project artifacts
+.coverage
+.nyc_output
+coverage/

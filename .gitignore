@@ -229,9 +229,18 @@ config.yaml
 config.json
 settings.json
 
+# Removed alternative deployment methods (Docker-only approach)
+run.sh
+run.bat
+setup-alias.sh
+install-global.sh
+Makefile
+USAGE_GUIDE.md
+
 # But keep these files
 !.gitignore
 !requirements.txt
 !README.md
-!template.html
-!aem_url_converter.py
+!Dockerfile
+!docker-compose.yml
+!docker-run.sh
