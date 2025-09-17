@@ -1,104 +1,185 @@
 
 ---
-title: "AEM URL Converter Component Diagram (Legacy Monolithic Implementation)"
-description: "Component diagram showing the monolithic architecture with all functionality contained in a single file for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM content review."
+title: "AEM URL 변환기 컴포넌트 다이어그램"
+description: "AEM URL Converter의 리팩토링된 SOLID 원칙 기반 아키텍처 컴포넌트 다이어그램 - GlobalLink ZIP 파일 처리를 통한 AEM MSM 워크플로우 지원"
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
 last_modified: "2025-09-17"
-version: "1.0.0"
-license: "MIT"
-branch: "main (legacy production)"
-architecture: "Monolithic"
-tags: ["AEM", "GlobalLink", "Translation", "MSM", "Streamlit", "Production", "Mermaid", "Component Diagram"]
-dependencies: ["mermaid"]
-diagram_type: "Component Diagram"
-purpose: "Visualize monolithic architecture and function relationships"
-scope: "Single-file system architecture"
+version: "2.0.0"
+document_type: "Component Diagram"
+diagram_type: "Mermaid Class Diagram"
+tags: ["Component Diagram", "Class Diagram", "SOLID", "Architecture", "Mermaid"]
 ---
+
+# AEM URL 변환기 컴포넌트 다이어그램
+
+리팩토링된 SOLID 원칙 기반 아키텍처
 
 ``` mermaid
 classDiagram
     direction TB
-    
-    class StreamlitApp {
-        <<Main>>
-        -AEM_HOST: string = "https://prod-author.illumina.com"
-        -SOURCE_LANG_PATH: string = "language-master#en"
-        +file_uploader() UploadedFile
-        +text_input(label) string
-        +columns(num) list
-        +dataframe(df) void
-        +download_button(label, data, filename) void
-        +success(message) void
-        +warning(message) void
+
+    %% Core Layer
+    class Config {
+        <<Dataclass>>
+        +aem_host: string
+        +source_lang: string
+        +template_file: string
+        +language_mapping: Dict[str, str]
+        +spac_paths: Dict[str, str]
+        +get_supported_languages() list
+        +get_spac_path(lang_code) string
     }
-    
-    class process_zip_file {
-        <<Function>>
-        +uploaded_file: BytesIO
-        +returns: tuple[list, list]
-        -extracts ko-KR and ja-JP files
-        -filters #content files
-    }
-    
-    class generate_aem_url {
-        <<Function>>
-        +file_name: string
-        +target_lang: string  
-        +returns: tuple[url, path]
-        -replaces language codes
-        -converts xml to html
-        -builds editor URL
-    }
-    
-    class build_hierarchical_df {
-        <<Function>>
-        +links: list[dict]
-        +returns: DataFrame
-        -splits paths into levels
-        -creates markdown links
-        -builds column structure
-    }
-    
-    class generate_hierarchical_html_table {
-        <<Function>>
-        +links: list[dict]
-        +language_name: string
-        +source_zip_name: string
-        +job_id: string
-        +submission_name: string
-        +lang_code: string
-        +returns: string
-        -creates HTML with checkboxes
-        -adds Quick Links column
-        -generates lm-en, lm-ko/ja, spac links
-    }
-    
-    class Link {
-        <<Dictionary>>
+
+    class AEMLink {
+        <<Domain Model>>
         +url: string
         +path: string
+        +language: string
+        +get_path_parts() List[str]
+        +get_page_name() string
+        +to_dict() Dict[str, str]
     }
-    
-    class DataFrame {
-        <<pandas.DataFrame>>
-        +Level 2: string
-        +Level 3: string
-        +Level N: string
-        +contains markdown links
+
+    class LinkCollection {
+        <<Domain Model>>
+        +korean: List[AEMLink]
+        +japanese: List[AEMLink]
+        +get_total_count() int
+        +get_by_language(lang_code) List[AEMLink]
+        +has_links() bool
     }
-    
-    StreamlitApp --> process_zip_file : calls on upload
-    process_zip_file --> generate_aem_url : iteratively calls
-    generate_aem_url --> Link : creates
-    process_zip_file --> Link : aggregates by language
-    StreamlitApp --> build_hierarchical_df : calls for display
-    build_hierarchical_df --> DataFrame : creates
-    StreamlitApp --> generate_hierarchical_html_table : calls for download
-    StreamlitApp --> DataFrame : displays in columns
-    
-    note for StreamlitApp "주요 설정값:\n- AEM 호스트 URL\n- 소스 언어 경로\n- Job ID/Submission Name 입력"
-    note for generate_hierarchical_html_table "HTML 특징:\n- 체크박스 컬럼\n- Quick Links (lm-en, lm-ko/ja, spac)\n- 계층적 테이블 구조"
+
+    class ProcessingResult {
+        <<Domain Model>>
+        +links: LinkCollection
+        +processed_count: int
+        +error_count: int
+        +warnings: List[str]
+        +add_warning(message) void
+        +is_successful() bool
+    }
+
+    %% Service Layer
+    class LanguageDetectorService {
+        <<Service>>
+        +config: Config
+        +detect(path) Optional[str]
+        +is_supported_language(lang_code) bool
+    }
+
+    class AEMURLGenerator {
+        <<Service>>
+        +config: Config
+        +generate(file_name, target_lang) Optional[Tuple[str, str]]
+        +build_editor_url(path) string
+        +create_aem_path(file_name, target_lang) string
+    }
+
+    class ZipFileProcessor {
+        <<Service>>
+        +language_detector: LanguageDetectorService
+        +url_generator: AEMURLGenerator
+        +process(uploaded_file) ProcessingResult
+        +extract_language_files(zip_file) Dict[str, List[str]]
+    }
+
+    %% Presentation Layer
+    class HierarchicalDataFrameBuilder {
+        <<Presentation>>
+        +build(links) DataFrame
+        +create_hierarchical_structure(links) DataFrame
+        +format_markdown_links(links) List[str]
+    }
+
+    class HTMLTableRenderer {
+        <<Presentation>>
+        +quick_links_generator: QuickLinksGenerator
+        +template_loader: TemplateLoader
+        +render(links, language_name, ...) string
+        +generate_table_html(links) string
+    }
+
+    class TemplateLoader {
+        <<Presentation>>
+        +template_file: string
+        +load_template() string
+        +template_exists() bool
+        +get_default_template() string
+    }
+
+    %% Application Layer
+    class AEMConverterApp {
+        <<Application>>
+        +container: DIContainer
+        +config: Config
+        +run() void
+        +_process_and_display(file, job_id, name) void
+        +_display_results(ko_links, ja_links) void
+    }
+
+    class DIContainer {
+        <<DI Container>>
+        +config: Config
+        +language_detector: LanguageDetectorService
+        +url_generator: AEMURLGenerator
+        +zip_processor: ZipFileProcessor
+        +df_builder: HierarchicalDataFrameBuilder
+        +html_renderer: HTMLTableRenderer
+        +template_loader: TemplateLoader
+        +reset() void
+    }
+
+    %% Interfaces
+    class URLGenerator {
+        <<Interface>>
+        +generate(file_name, target_lang) Optional[Tuple[str, str]]
+    }
+
+    class FileProcessor {
+        <<Protocol>>
+        +process(file_path) Optional[AEMLink]
+    }
+
+    class TemplateRenderer {
+        <<Interface>>
+        +render(links, **kwargs) string
+    }
+
+    %% Relationships
+    DIContainer --> Config : creates
+    DIContainer --> LanguageDetectorService : manages
+    DIContainer --> AEMURLGenerator : manages
+    DIContainer --> ZipFileProcessor : manages
+    DIContainer --> HierarchicalDataFrameBuilder : manages
+    DIContainer --> HTMLTableRenderer : manages
+    DIContainer --> TemplateLoader : manages
+
+    AEMConverterApp --> DIContainer : uses
+
+    ZipFileProcessor --> LanguageDetectorService : uses
+    ZipFileProcessor --> AEMURLGenerator : uses
+    ZipFileProcessor --> ProcessingResult : creates
+    ZipFileProcessor --> LinkCollection : creates
+    ZipFileProcessor --> AEMLink : creates
+
+    LanguageDetectorService --> Config : uses
+    AEMURLGenerator --> Config : uses
+    TemplateLoader --> Config : uses
+
+    HTMLTableRenderer --> TemplateLoader : uses
+
+    ProcessingResult --> LinkCollection : contains
+    LinkCollection --> AEMLink : contains
+
+    AEMURLGenerator ..|> URLGenerator : implements
+    HTMLTableRenderer ..|> TemplateRenderer : implements
+
+    %% Notes
+    note for Config "SOLID: SRP\n설정 관리만 담당"
+    note for DIContainer "SOLID: DIP\n의존성 역전을 통한\n느슨한 결합"
+    note for URLGenerator "SOLID: OCP\n확장 가능한 인터페이스"
+    note for AEMLink "SOLID: SRP\n링크 데이터만 관리"
 ```

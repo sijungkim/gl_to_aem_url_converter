@@ -1,0 +1,6 @@
+# AEM URL Converter - Production Requirements
+# Python 3.9+
+
+# Core application dependencies (Docker optimized)
+streamlit>=1.28.0
+pandas>=2.0.0
