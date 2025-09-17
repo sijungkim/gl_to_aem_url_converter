@@ -1,13 +1,13 @@
 """
 ---
 title: "Main Application Entry Point"
-description: "Primary entry point for the AEM URL Converter application that processes GlobalLink translated ZIP files. Handles configuration loading, dependency injection setup, and application initialization to generate AEM MSM editor URLs for English language master, target languages, and SPAC content review."
+description: "Primary entry point for the AEM URL Converter application that processes GlobalLink translated ZIP files. Handles configuration loading, dependency injection setup, and application initialization to generate AEM MSM editor URLs for English language master, target languages, and SPAC content review. Enhanced with multi-ZIP batch processing support."
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
-last_modified: "2025-09-17"
-version: "2.0.0"
+last_modified: "2025-09-18"
+version: "2.1.0"
 module_type: "Application Entry Point"
 dependencies: ["streamlit", "pathlib", "os", "sys"]
 key_classes: ["None - functional module"]

@@ -6,8 +6,8 @@ architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
-last_modified: "2025-09-17"
-version: "2.0.0"
+last_modified: "2025-09-18"
+version: "2.1.0"
 module_type: "Core Domain Layer"
 dependencies: ["dataclasses", "typing"]
 key_classes: ["Config"]

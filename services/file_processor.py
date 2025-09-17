@@ -1,21 +1,21 @@
 """
 ---
 title: "ZIP File Processing Services"
-description: "Service layer components for processing GlobalLink translated ZIP archives downloaded from translation management system. Implements batch file processing, filtering, and AEM MSM editor link extraction for English language master, target languages, and SPAC content review workflow with comprehensive error handling."
+description: "Service layer components for processing GlobalLink translated ZIP archives downloaded from translation management system. Implements batch file processing, filtering, and AEM MSM editor link extraction for English language master, target languages, and SPAC content review workflow with comprehensive error handling. Enhanced with multi-ZIP support for batch processing with deduplication."
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
-last_modified: "2025-09-17"
-version: "2.0.0"
+last_modified: "2025-09-18"
+version: "2.1.0"
 module_type: "Service Layer"
 dependencies: ["zipfile", "io", "os", "typing", "core.models", "services.language", "services.url_generator"]
 key_classes: ["ZipFileProcessor", "FileFilter", "BatchProcessor"]
 key_functions: ["process", "extract_language_files", "filter_content_files", "process_batch"]
 design_patterns: ["Strategy Pattern", "Chain of Responsibility", "Observer Pattern"]
 solid_principles: ["SRP - Single Responsibility Principle", "DIP - Dependency Inversion Principle"]
-features: ["ZIP Processing", "File Filtering", "Batch Operations", "Error Handling", "Progress Tracking"]
-tags: ["file-processing", "zip-extraction", "batch-processing", "services"]
+features: ["ZIP Processing", "File Filtering", "Batch Operations", "Error Handling", "Progress Tracking", "Multi-ZIP Support", "Deduplication"]
+tags: ["file-processing", "zip-extraction", "batch-processing", "services", "multi-zip"]
 ---
 
 services/file_processor.py - ZIP File Processing Services
@@ -88,12 +88,13 @@ class ZipFileProcessor:
         self.language_detector = language_detector
         self.url_generator = url_generator
     
-    def process(self, uploaded_file) -> ProcessingResult:
+    def process(self, uploaded_file, source_name: str = None) -> ProcessingResult:
         """ZIP 파일 처리 및 링크 추출
-        
+
         Args:
             uploaded_file: Streamlit UploadedFile 객체
-            
+            source_name: 소스 ZIP 파일명 (optional)
+
         Returns:
             처리 결과 객체
         """
@@ -101,6 +102,7 @@ class ZipFileProcessor:
         processed_count = 0
         error_count = 0
         warnings = []
+        zip_name = source_name or getattr(uploaded_file, 'name', 'unknown.zip')
         
         try:
             with zipfile.ZipFile(io.BytesIO(uploaded_file.getvalue())) as zf:
@@ -110,7 +112,7 @@ class ZipFileProcessor:
                     processed_count += 1
                     
                     try:
-                        link = self._process_single_file(full_path)
+                        link = self._process_single_file(full_path, zip_name)
                         if link:
                             links[link.language].append(link)
                     except Exception as e:
@@ -140,12 +142,13 @@ class ZipFileProcessor:
         
         return result
     
-    def _process_single_file(self, full_path: str) -> Optional[AEMLink]:
+    def _process_single_file(self, full_path: str, source_zip: str = None) -> Optional[AEMLink]:
         """단일 파일 처리 (SRP)
-        
+
         Args:
             full_path: ZIP 내 파일 경로
-            
+            source_zip: 소스 ZIP 파일명
+
         Returns:
             AEMLink 객체 또는 None
         """
@@ -163,7 +166,7 @@ class ZipFileProcessor:
         result = self.url_generator.generate(file_name, target_lang)
         if result:
             url, path = result
-            return AEMLink(url=url, path=path, language=target_lang)
+            return AEMLink(url=url, path=path, language=target_lang, source_zip=source_zip)
         
         return None
     
@@ -248,53 +251,87 @@ class BatchProcessor:
         """
         self.file_processor = file_processor
     
-    def process_multiple_zips(self, zip_files: List) -> List[ProcessingResult]:
-        """여러 ZIP 파일 일괄 처리
-        
+    def process_multiple_zips(self, zip_files: List) -> ProcessingResult:
+        """여러 ZIP 파일 일괄 처리 및 병합
+
         Args:
             zip_files: ZIP 파일 리스트
-            
-        Returns:
-            처리 결과 리스트
-        """
-        results = []
-        
-        for zip_file in zip_files:
-            result = self.file_processor.process(zip_file)
-            results.append(result)
-        
-        return results
-    
-    def merge_results(self, results: List[ProcessingResult]) -> ProcessingResult:
-        """여러 처리 결과 병합
-        
-        Args:
-            results: 처리 결과 리스트
-            
+
         Returns:
             병합된 처리 결과
+        """
+        results = []
+
+        for zip_file in zip_files:
+            source_name = getattr(zip_file, 'name', f'file_{len(results)+1}.zip')
+            result = self.file_processor.process(zip_file, source_name)
+            results.append(result)
+
+        # 결과 병합 및 중복 제거
+        return self.merge_and_deduplicate_results(results)
+    
+    def merge_and_deduplicate_results(self, results: List[ProcessingResult]) -> ProcessingResult:
+        """여러 처리 결과 병합 및 중복 제거
+
+        Args:
+            results: 처리 결과 리스트
+
+        Returns:
+            병합된 및 중복 제거된 처리 결과
         """
         all_korean = []
         all_japanese = []
         total_processed = 0
         total_errors = 0
         all_warnings = []
-        
+
+        # 모든 결과 수집
         for result in results:
             all_korean.extend(result.links.korean)
             all_japanese.extend(result.links.japanese)
             total_processed += result.processed_count
             total_errors += result.error_count
             all_warnings.extend(result.warnings)
-        
+
+        # 경로 기준 중복 제거 (나중 파일 우선)
+        korean_dedup = self._deduplicate_links(all_korean)
+        japanese_dedup = self._deduplicate_links(all_japanese)
+
+        # 경로 기준 정렬
+        korean_dedup.sort(key=lambda x: x.path)
+        japanese_dedup.sort(key=lambda x: x.path)
+
         merged_links = LinkCollection(
-            korean=all_korean,
-            japanese=all_japanese
+            korean=korean_dedup,
+            japanese=japanese_dedup
         )
-        
+
+        # 중복 제거 경고 추가
+        ko_removed = len(all_korean) - len(korean_dedup)
+        ja_removed = len(all_japanese) - len(japanese_dedup)
+        if ko_removed > 0 or ja_removed > 0:
+            all_warnings.append(
+                f"Removed {ko_removed + ja_removed} duplicate links "
+                f"(Korean: {ko_removed}, Japanese: {ja_removed})"
+            )
+
         return ProcessingResult(
             links=merged_links,
             processed_count=total_processed,
             error_count=total_errors,
             warnings=all_warnings
         )
+
+    def _deduplicate_links(self, links: List[AEMLink]) -> List[AEMLink]:
+        """링크 중복 제거 (경로 기준, 나중 파일 우선)
+
+        Args:
+            links: AEMLink 리스트
+
+        Returns:
+            중복 제거된 링크 리스트
+        """
+        seen_paths = {}
+        for link in links:
+            seen_paths[link.path] = link  # 나중 파일이 이전 파일을 덮어쓰기
+        return list(seen_paths.values())

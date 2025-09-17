@@ -1,21 +1,21 @@
 """
 ---
 title: "DataFrame Construction Services"
-description: "Presentation layer services for building hierarchical and summary DataFrames from AEM link data. Implements data transformation logic for creating user-friendly tabular representations with markdown formatting and multi-level organization."
+description: "Presentation layer services for building hierarchical and summary DataFrames from AEM link data. Implements data transformation logic for creating user-friendly tabular representations with markdown formatting and multi-level organization. Enhanced with multi-ZIP source tracking support."
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
-last_modified: "2025-09-17"
-version: "2.0.0"
+last_modified: "2025-09-18"
+version: "2.1.0"
 module_type: "Presentation Layer"
 dependencies: ["pandas", "typing", "core.models"]
 key_classes: ["HierarchicalDataFrameBuilder", "SummaryDataFrameBuilder"]
 key_functions: ["build", "create_hierarchical_structure", "format_markdown_links", "build_summary"]
 design_patterns: ["Builder Pattern", "Template Method Pattern"]
 solid_principles: ["SRP - Single Responsibility Principle", "OCP - Open/Closed Principle"]
-features: ["Hierarchical Organization", "Markdown Formatting", "Summary Statistics", "Data Transformation"]
-tags: ["dataframe", "presentation", "data-transformation", "ui-components"]
+features: ["Hierarchical Organization", "Markdown Formatting", "Summary Statistics", "Data Transformation", "Multi-ZIP Source Tracking"]
+tags: ["dataframe", "presentation", "data-transformation", "ui-components", "multi-zip"]
 ---
 
 presentation/df_builder.py - DataFrame Construction Services
@@ -61,12 +61,13 @@ class HierarchicalDataFrameBuilder:
         self.level_prefix = "Level"
         self.start_level = 2  # Level 2부터 시작
     
-    def build(self, links: List[Dict[str, str]]) -> pd.DataFrame:
+    def build(self, links: List[Dict[str, str]], show_source: bool = False) -> pd.DataFrame:
         """링크 리스트를 계층적 DataFrame으로 변환
-        
+
         Args:
             links: URL과 경로를 포함한 딕셔너리 리스트
-            
+            show_source: 소스 ZIP 파일명 컨럼 표시 여부
+
         Returns:
             계층적 구조의 pandas DataFrame
         """
@@ -78,8 +79,8 @@ class HierarchicalDataFrameBuilder:
         max_depth = self._get_max_depth(paths)
         
         # 테이블 데이터 구성
-        table_data = self._build_table_data(links, paths, max_depth)
-        
+        table_data = self._build_table_data(links, paths, max_depth, show_source)
+
         return pd.DataFrame(table_data)
     
     def build_from_aem_links(self, aem_links: List[AEMLink]) -> pd.DataFrame:
@@ -126,22 +127,24 @@ class HierarchicalDataFrameBuilder:
         self,
         links: List[Dict[str, str]],
         paths: List[List[str]],
-        max_depth: int
+        max_depth: int,
+        show_source: bool = False
     ) -> List[Dict[str, str]]:
         """테이블 데이터 구성
-        
+
         Args:
             links: 링크 딕셔너리 리스트
             paths: 분할된 경로 리스트
             max_depth: 최대 깊이
-            
+            show_source: 소스 컨럼 표시 여부
+
         Returns:
             테이블 행 데이터 리스트
         """
         table_data = []
         
         for i, path_parts in enumerate(paths):
-            row = self._build_row(path_parts, links[i]['url'], max_depth)
+            row = self._build_row(path_parts, links[i], max_depth, show_source)
             table_data.append(row)
         
         return table_data
@@ -149,24 +152,32 @@ class HierarchicalDataFrameBuilder:
     def _build_row(
         self,
         path_parts: List[str],
-        url: str,
-        max_depth: int
+        link_data: Dict[str, str],
+        max_depth: int,
+        show_source: bool = False
     ) -> Dict[str, str]:
         """단일 행 데이터 구성
-        
+
         Args:
             path_parts: 경로 구성 요소
-            url: 링크 URL
+            link_data: 링크 데이터 (소스 정보 포함)
             max_depth: 최대 깊이
-            
+            show_source: 소스 컨럼 표시 여부
+
         Returns:
             행 데이터 딕셔너리
         """
         row = {}
-        
+        url = link_data['url']
+
+        # 소스 컨럼 추가 (옵션)
+        if show_source and 'source_zip' in link_data and link_data['source_zip']:
+            source_display = link_data['source_zip'].replace('.zip', '')
+            row['Source ZIP'] = source_display
+
         for j in range(max_depth):
             col_name = f"{self.level_prefix} {j + self.start_level}"
-            
+
             if j < len(path_parts) - 1:
                 # 중간 레벨: 경로 구성 요소
                 row[col_name] = path_parts[j]
@@ -177,7 +188,7 @@ class HierarchicalDataFrameBuilder:
             else:
                 # 빈 셀
                 row[col_name] = ""
-        
+
         return row
 
 

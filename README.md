@@ -1,19 +1,28 @@
 ---
 title: "AEM URL Converter"
-description: "A Streamlit-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates across English, target languages, and SPAC target languages"
+description: "A Streamlit-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates across English, target languages, and SPAC target languages. Features multi-ZIP batch processing with intelligent deduplication and source tracking."
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
-last_modified: "2025-09-17"
-version: "2.0.0"
+last_modified: "2025-09-18"
+version: "2.1.0"
 license: "MIT"
-tags: ["AEM", "GlobalLink", "Translation", "SOLID", "Clean Architecture", "Streamlit"]
+tags: ["AEM", "GlobalLink", "Translation", "SOLID", "Clean Architecture", "Streamlit", "Multi-ZIP", "Batch Processing"]
 ---
 
 # AEM URL Converter
 
 A Streamlit-based tool for processing GlobalLink translated ZIP files and generating AEM editor URLs for MSM (Multi-Site Manager) content review and updates. The application analyzes downloaded GlobalLink translation packages and provides direct AEM editor links for English language master, target language content, and SPAC target language pages, streamlining the multilingual content management workflow.
+
+## 🚀 **NEW: Multi-ZIP Batch Processing**
+
+✨ **Version 2.1.0** introduces powerful multi-ZIP batch processing capabilities:
+- **Batch Upload**: Select and process multiple ZIP files simultaneously
+- **Smart Deduplication**: Automatically removes duplicate URLs with "latest file wins" strategy
+- **Source Tracking**: Each URL tracks its originating ZIP file for complete transparency
+- **Consolidated Reporting**: Single comprehensive report combining all processed files
+- **Backward Compatible**: Single file processing works exactly as before
 
 ## 🏗️ Architecture
 
@@ -220,20 +229,48 @@ def test_zip_processing():
 ## 📚 Usage
 
 ### Basic Usage
+
+#### Single File Processing (Original Workflow)
 1. **Launch Application**: Run `streamlit run main.py` or `python main.py`
-2. **Upload GlobalLink ZIP**: Upload the downloaded GlobalLink translation ZIP file
+2. **Upload GlobalLink ZIP**: Upload a single downloaded GlobalLink translation ZIP file
 3. **Optional Metadata**: Enter Job ID and Submission Name for tracking
-4. **View MSM Review Links**:
-   - **Summary Tab**: Overview with statistics and translation coverage
-   - **Japanese Tab**: AEM editor links for Japanese content review
-   - **Korean Tab**: AEM editor links for Korean content review
-5. **Download MSM Reports**: Export HTML reports with:
-   - Interactive checkboxes for content selection
-   - Quick Links for MSM workflow:
-     - **Language Master (English)**: Source content links
-     - **Target Language**: Translated content for review
-     - **SPAC Target Language**: SPAC-specific content links
-   - Hierarchical table structure for easy navigation
+4. **View MSM Review Links**: Browse results in organized tabs
+5. **Download Report**: Export HTML report for the single file
+
+#### 🆕 Multi-ZIP Batch Processing (New Feature)
+1. **Launch Application**: Run `streamlit run main.py` or `python main.py`
+2. **Upload Multiple ZIPs**:
+   - Use Ctrl+Click (Windows/Linux) or Cmd+Click (Mac) to select multiple ZIP files
+   - Upload all selected files at once
+3. **Batch Processing**:
+   - Application processes all files automatically
+   - Smart deduplication removes duplicate URLs
+   - "Latest file wins" for conflicts
+4. **View Consolidated Results**:
+   - **Summary Tab**: Combined statistics across all files
+   - **Japanese Tab**: Merged Japanese content with source tracking
+   - **Korean Tab**: Merged Korean content with source tracking
+   - **Source Column**: Shows which ZIP file each URL originated from
+5. **Download Comprehensive Report**:
+   - Single HTML report combining all files
+   - Source file information included
+   - Complete audit trail of processed files
+
+### MSM Review Interface
+- **Summary Tab**: Overview with statistics and translation coverage
+- **Japanese Tab**: AEM editor links for Japanese content review
+- **Korean Tab**: AEM editor links for Korean content review
+- **Source Tracking**: When multiple files are processed, see which ZIP each URL came from
+
+### Download Options
+Export HTML reports with:
+- Interactive checkboxes for content selection
+- Quick Links for MSM workflow:
+  - **Language Master (English)**: Source content links
+  - **Target Language**: Translated content for review
+  - **SPAC Target Language**: SPAC-specific content links
+- Hierarchical table structure for easy navigation
+- **Source Information**: ZIP file tracking when processing multiple files
 
 ### MSM Workflow Features
 - **Multi-Site Manager Integration**: Direct links to AEM MSM content structure
@@ -244,9 +281,44 @@ def test_zip_processing():
 - **Translation Tracking**: Job ID and submission tracking for workflow management
 
 ### GlobalLink to AEM Processing Flow
+
+#### Single File Flow
 1. **Download ZIP from GlobalLink** → **Upload to Application** → **Content Analysis**
 2. **Language Detection** → **MSM Structure Mapping** → **AEM URL Generation**
 3. **Review Link Generation** → **Report Creation** → **MSM Workflow Support**
+
+#### 🆕 Multi-ZIP Batch Flow
+1. **Download Multiple ZIPs from GlobalLink** → **Batch Upload to Application**
+2. **Sequential Processing** → **Content Analysis per File** → **Source Tracking**
+3. **Language Detection** → **MSM Structure Mapping** → **AEM URL Generation**
+4. **Smart Deduplication** → **Conflict Resolution** → **Source Attribution**
+5. **Consolidated Report Generation** → **Comprehensive MSM Workflow Support**
+
+## 📦 Multi-ZIP Feature Details
+
+### Smart Deduplication
+- **Path-Based Detection**: URLs with identical paths are considered duplicates
+- **Latest File Priority**: When conflicts occur, the version from the later-processed file is kept
+- **Transparent Reporting**: Deduplication statistics shown in application warnings
+- **Source Preservation**: Winning URLs retain their source ZIP information
+
+### Source File Tracking
+- **Granular Attribution**: Each URL knows which ZIP file it originated from
+- **Visual Indicators**: Source column automatically appears for multi-file processing
+- **Report Integration**: HTML reports include source file information
+- **Audit Trail**: Complete visibility into which files contributed which content
+
+### Batch Processing Benefits
+- **Time Efficiency**: Process multiple translation deliveries simultaneously
+- **Consistency**: Single consolidated view of all translated content
+- **Quality Assurance**: Automatic duplicate detection prevents review redundancy
+- **Workflow Integration**: Streamlined handoff to MSM review process
+
+### Technical Implementation
+- **Memory Efficient**: Files processed sequentially, not loaded simultaneously
+- **Error Isolation**: Problems in one ZIP don't affect others
+- **Progress Feedback**: Real-time updates during batch processing
+- **Backward Compatible**: Zero impact on existing single-file workflows
 
 ## 🔧 Customization
 
@@ -300,12 +372,15 @@ self.spac_paths = {
 
 4. **UI updates are handled automatically** - The application will create new tabs and sections for the new languages
 
-### Benefits of the Refactored Architecture
+### Benefits of the Enhanced Architecture
 - **Type Safety**: Strong typing prevents runtime errors
 - **Dependency Injection**: Easy testing and mock object injection
 - **Separation of Concerns**: Clear boundaries between layers
 - **Extensibility**: Easy to add new features without modifying existing code
 - **Maintainability**: Changes in one layer don't affect others
+- **Batch Processing**: Efficient multi-file processing with smart deduplication
+- **Source Tracking**: Complete audit trail of processed content
+- **Backward Compatibility**: Seamless support for both single and multi-file workflows
 
 ## 🤝 Contributing
 

@@ -1,21 +1,21 @@
 """
 ---
 title: "Dependency Injection Container"
-description: "Central dependency injection container implementing the Dependency Inversion Principle. Manages all service instances using singleton pattern with lazy loading for optimal performance and clean architecture compliance."
+description: "Central dependency injection container implementing the Dependency Inversion Principle. Manages all service instances using singleton pattern with lazy loading for optimal performance and clean architecture compliance. Enhanced with multi-ZIP batch processing support."
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
-last_modified: "2025-09-17"
-version: "2.0.0"
+last_modified: "2025-09-18"
+version: "2.1.0"
 module_type: "Infrastructure Layer"
 dependencies: ["core.config", "services.*", "presentation.*"]
 key_classes: ["DIContainer", "TestDIContainer"]
 key_functions: ["Property methods for service access", "reset", "inject_mock"]
 design_patterns: ["Dependency Injection", "Singleton Pattern", "Factory Method Pattern", "Lazy Loading"]
 solid_principles: ["DIP - Dependency Inversion Principle", "SRP - Single Responsibility Principle", "OCP - Open/Closed Principle"]
-features: ["Lazy Loading", "Singleton Management", "Mock Injection", "Service Lifecycle"]
-tags: ["dependency-injection", "container", "singleton", "infrastructure", "testing"]
+features: ["Lazy Loading", "Singleton Management", "Mock Injection", "Service Lifecycle", "Multi-ZIP Batch Processing"]
+tags: ["dependency-injection", "container", "singleton", "infrastructure", "testing", "multi-zip"]
 ---
 
 di_container.py - Dependency Injection Container
