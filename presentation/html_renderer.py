@@ -128,7 +128,7 @@ class HTMLTableRenderer(TemplateRenderer):
         self,
         links: List[Dict[str, str]],
         language_name: str,
-        source_name: str,
+        source_names,
         job_id: str,
         submission_name: str,
         lang_code: str
@@ -152,16 +152,17 @@ class HTMLTableRenderer(TemplateRenderer):
         # 데이터 준비
         paths = self._extract_paths(links)
         max_depth = max(len(p) for p in paths) if paths else 0
-        
+        show_source_column = self._should_show_source_column(links, source_names)
+
         # HTML 구성 요소 생성
-        headers = self._build_headers(max_depth)
-        table_rows = self._build_rows(links, paths, max_depth, lang_code)
-        source_info = self._build_source_info(job_id, submission_name, source_name)
-        
+        headers = self._build_headers(max_depth, show_source_column)
+        table_rows = self._build_rows(links, paths, max_depth, lang_code, show_source_column)
+        source_info = self._build_source_info(job_id, submission_name, source_names)
+
         # 템플릿 렌더링
         return self._render_template(
-            language_name, source_name, source_info,
-            headers, table_rows, len(links), max_depth
+            language_name, source_names, source_info,
+            headers, table_rows, len(links), max_depth, show_source_column
         )
     
     def _render_empty_result(self, language_name: str) -> str:
@@ -193,16 +194,19 @@ class HTMLTableRenderer(TemplateRenderer):
             paths.append(path_parts)
         return paths
     
-    def _build_headers(self, max_depth: int) -> str:
+    def _build_headers(self, max_depth: int, show_source_column: bool = False) -> str:
         """테이블 헤더 생성
-        
+
         Args:
             max_depth: 최대 경로 깊이
-            
+            show_source_column: 소스 컬럼 표시 여부
+
         Returns:
             헤더 HTML 문자열
         """
         headers = "<th>Check</th><th>Quick Links</th>"
+        if show_source_column:
+            headers += "<th>Source</th>"
         headers += "".join([f"<th>Level {i+2}</th>" for i in range(max_depth)])
         return headers
     
@@ -211,7 +215,8 @@ class HTMLTableRenderer(TemplateRenderer):
         links: List[Dict[str, str]],
         paths: List[List[str]],
         max_depth: int,
-        lang_code: str
+        lang_code: str,
+        show_source_column: bool = False
     ) -> str:
         """테이블 행 생성
         
@@ -227,38 +232,49 @@ class HTMLTableRenderer(TemplateRenderer):
         rows = []
         for i, path_parts in enumerate(paths):
             row = self._build_single_row(
-                links[i]['url'],
+                links[i],
                 path_parts,
                 max_depth,
-                lang_code
+                lang_code,
+                show_source_column
             )
             rows.append(row)
         return "".join(rows)
     
     def _build_single_row(
         self,
-        url: str,
+        link_data: Dict[str, str],
         path_parts: List[str],
         max_depth: int,
-        lang_code: str
+        lang_code: str,
+        show_source_column: bool = False
     ) -> str:
         """단일 테이블 행 생성
-        
+
         Args:
-            url: 링크 URL
+            link_data: 링크 데이터 (소스 정보 포함)
             path_parts: 경로 구성 요소
             max_depth: 최대 깊이
             lang_code: 언어 코드
-            
+            show_source_column: 소스 컨럼 표시 여부
+
         Returns:
             행 HTML 문자열
         """
         # 체크박스 컬럼
         row = '<tr><td><input type="checkbox"></td>'
-        
+
         # Quick Links 컬럼
+        url = link_data['url']
         quick_links = self.quick_links_generator.generate(url, lang_code)
         row += f'<td>{quick_links}</td>'
+
+        # Source 컬럼 (옵션)
+        if show_source_column:
+            source_display = ""
+            if 'source_zip' in link_data and link_data['source_zip']:
+                source_display = link_data['source_zip'].replace('.zip', '')
+            row += f'<td>{source_display}</td>'
         
         # 경로 레벨 컬럼들
         for j in range(max_depth):
@@ -272,38 +288,46 @@ class HTMLTableRenderer(TemplateRenderer):
         row += "</tr>"
         return row
     
-    def _build_source_info(
-        self,
-        job_id: str,
-        submission_name: str,
-        source_name: str
-    ) -> str:
+    def _build_source_info(self, job_id: str, submission_name: str, source_names) -> str:
         """소스 정보 HTML 생성
-        
+
         Args:
             job_id: Job ID
             submission_name: Submission 이름
-            source_name: 소스 파일명
-            
+            source_names: 소스 파일명 (리스트 또는 문자열)
+
         Returns:
             소스 정보 HTML
         """
+        # 소스 파일 리스트 처리
+        if isinstance(source_names, list):
+            source_display = ', '.join(source_names)
+            file_count_text = f" ({len(source_names)} files)" if len(source_names) > 1 else ""
+        else:
+            source_display = source_names
+            file_count_text = ""
+
         if job_id and submission_name:
-            return f"""
-            <p><strong>Job ID:</strong> {job_id}</p>
-            <p><strong>Submission Name:</strong> {submission_name}</p>
-            """
-        return f"<p><strong>Source File:</strong> {source_name}</p>"
+            info = f"<p><strong>Job ID:</strong> {job_id}</p><p><strong>Submission:</strong> {submission_name}</p>"
+            if file_count_text:
+                info += f"<p><strong>ZIP Files{file_count_text}:</strong> {source_display}</p>"
+            return info
+        else:
+            if file_count_text:
+                return f"<p><strong>ZIP Files{file_count_text}:</strong> {source_display}</p>"
+            else:
+                return f"<p><strong>Source:</strong> {source_display}</p>"
     
     def _render_template(
         self,
         language_name: str,
-        source_name: str,
+        source_names,
         source_info: str,
         headers: str,
         table_rows: str,
         total_links: int,
-        max_depth: int
+        max_depth: int,
+        show_source_column: bool = False
     ) -> str:
         """템플릿 렌더링
         
@@ -320,30 +344,54 @@ class HTMLTableRenderer(TemplateRenderer):
             최종 HTML 문자열
         """
         template = self.template_loader.load()
-        
+
+        # 소스 파일 변수 처리
+        if isinstance(source_names, list):
+            title_source = "Multiple Sources" if len(source_names) > 1 else source_names[0]
+        else:
+            title_source = source_names
+
         # 템플릿 변수 준비
+        level_headers = ""
+        if show_source_column:
+            level_headers += "<th>Source</th>"
+        level_headers += "".join([f"<th>Level {i+2}</th>" for i in range(max_depth)])
+
         template_vars = {
             'language_name': language_name,
-            'title_source': source_name,
+            'title_source': title_source,
             'source_info': source_info,
             'total_links': total_links,
+            'level_headers': level_headers,
             'headers': headers,
             'table_rows': table_rows,
             'generation_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
-        
+
         # 고급 템플릿이 있는지 확인
         if 'language_name' in template:
-            template_vars['level_headers'] = "".join(
-                [f"<th>Level {i+2}</th>" for i in range(max_depth)]
-            )
             return template.format(**template_vars)
         else:
             # 기본 템플릿 사용
-            title = f"AEM {language_name} Links - {source_name}"
+            title = f"AEM {language_name} Links - {title_source}"
             return template.format(
                 title=title,
                 source_info=source_info,
                 headers=headers,
                 table_rows=table_rows
             )
+
+    def _should_show_source_column(self, links: List[Dict[str, str]], source_names) -> bool:
+        """소스 컬럼 표시 여부 결정
+
+        Args:
+            links: 링크 리스트
+            source_names: 소스 파일명
+
+        Returns:
+            소스 컬럼을 표시해야 하면 True
+        """
+        # 여러 파일이거나 source_zip 필드가 있으면 표시
+        if isinstance(source_names, list) and len(source_names) > 1:
+            return True
+        return any('source_zip' in link and link['source_zip'] for link in links)

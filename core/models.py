@@ -1,21 +1,21 @@
 """
 ---
 title: "Domain Models and Business Entities"
-description: "Core domain models representing the business entities of the AEM URL Converter. Implements immutable data structures for AEM links, link collections, and processing results with rich behavior and validation following Domain-Driven Design principles."
+description: "Core domain models representing the business entities of the AEM URL Converter. Implements immutable data structures for AEM links, link collections, and processing results with rich behavior and validation following Domain-Driven Design principles. Enhanced with multi-ZIP support for batch processing."
 architect: "Sijung Kim"
 authors: ["Sijung Kim", "Claude", "Gemini"]
 reviewed_by: "Sijung Kim"
 created_date: "2025-09-15"
-last_modified: "2025-09-17"
-version: "2.0.0"
+last_modified: "2025-09-18"
+version: "2.1.0"
 module_type: "Core Domain Layer"
 dependencies: ["dataclasses", "typing"]
 key_classes: ["AEMLink", "LinkCollection", "ProcessingResult"]
 key_functions: ["get_path_parts", "get_page_name", "to_dict", "get_total_count", "add_warning", "is_successful"]
 design_patterns: ["Data Class Pattern", "Value Object Pattern", "Aggregate Pattern"]
 solid_principles: ["SRP - Single Responsibility Principle", "ISP - Interface Segregation Principle"]
-features: ["Immutable Design", "Rich Behavior", "Type Safety", "Validation", "Business Logic"]
-tags: ["domain-models", "business-entities", "dataclass", "core", "value-objects"]
+features: ["Immutable Design", "Rich Behavior", "Type Safety", "Validation", "Business Logic", "Multi-ZIP Source Tracking"]
+tags: ["domain-models", "business-entities", "dataclass", "core", "value-objects", "multi-zip"]
 ---
 
 core/models.py - Domain Models and Business Entities
@@ -42,12 +42,14 @@ Domain Models:
 
 1. AEMLink (Value Object):
    Represents a single AEM editor link with associated metadata. Contains utility
-   methods for path manipulation and data conversion.
+   methods for path manipulation and data conversion. Enhanced to track source ZIP
+   file for multi-ZIP batch processing.
 
    Properties:
    - url: The complete AEM editor URL
    - path: The content path within AEM
    - language: The target language code (ko, ja, etc.)
+   - source_zip: The source ZIP filename (optional, for multi-ZIP tracking)
 
    Behavior:
    - Path parsing and hierarchy extraction
@@ -137,15 +139,17 @@ from typing import List, Dict
 @dataclass
 class AEMLink:
     """AEM 링크를 표현하는 도메인 모델
-    
+
     Attributes:
         url: AEM 에디터 URL
         path: 파일 경로
         language: 언어 코드 (ko, ja 등)
+        source_zip: 소스 ZIP 파일명 (optional, for multi-ZIP processing)
     """
     url: str
     path: str
     language: str
+    source_zip: str = None
     
     def get_path_parts(self) -> List[str]:
         """경로를 계층별로 분할
@@ -167,14 +171,17 @@ class AEMLink:
     
     def to_dict(self) -> Dict[str, str]:
         """딕셔너리로 변환 (레거시 코드 호환용)
-        
+
         Returns:
-            url과 path를 포함한 딕셔너리
+            url, path, source_zip을 포함한 딕셔너리
         """
-        return {
+        result = {
             "url": self.url,
             "path": self.path
         }
+        if self.source_zip:
+            result["source_zip"] = self.source_zip
+        return result
 
 
 @dataclass
